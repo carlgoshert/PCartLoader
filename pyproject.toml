@@ -1,0 +1,27 @@
+[project]
+name = "PCartLoader"
+version = "1.0.0"
+requires-python = ">=3.11"
+dependencies = [
+    "usbx>=0.8.3",
+    "PySide6>=6.11.0",
+]
+
+[project.scripts]
+PCartLoader = "src.main:main"
+
+[tool.setuptools]
+packages = ["src"]
+
+[tool.setuptools.package-data]
+src = ["*.ui", "*.png"]
+
+[tool.pyproject-appimage]
+script = "PCartLoader"
+output = "PCartLoader.AppImage"
+icon = "src/icon.png"
+desktop-entry = "PCartLoader.desktop"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"

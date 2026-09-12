@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=PCartLoader
+Exec=PCartLoader.AppImage
+Icon=icon
+Categories=Utility;
