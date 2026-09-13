@@ -1,52 +1,28 @@
 import sys, os, subprocess, threading
 from .controller import Controller
+from .userdata import UserData
 from PySide6.QtGui import *
 from PySide6.QtWidgets import *
 from PySide6.QtUiTools import QUiLoader
-import json
 
+user_data = UserData()
+
+## Do on app start
 def _app_init():
-  user_path = os.path.expanduser('~')
-  share_path = os.path.join(user_path, ".local/share/PCartLoader")
-  if not os.path.exists(share_path):
-    os.makedirs(share_path)
-  settings_path = os.path.join(share_path, "settings.json")
-  if not os.path.exists(settings_path):
-    data = {
-      "app_links": {
-        "video": "",
-        "music": ""
-      }
-    }
-    with open(settings_path, "x") as f:
-      json.dump(data, f, indent=2)
-  else:
-    global text_music
-    global text_video
-    with open(settings_path, "r") as f:
-      data = json.load(f)
-      text_music.setText(data["app_links"]["music"])
-      text_video.setText(data["app_links"]["video"])
-
-def _save_to_user_folder(file_json_dict: dict):
-  user_path = os.path.expanduser('~')
-  share_path = os.path.join(user_path, ".local/share/PCartLoader")
-  for file in file_json_dict.keys():
-    with open(os.path.join(share_path, file), "w") as f:
-      json.dump(file_json_dict[file], f, indent=2)
+  # make folders and settings.json if none exist
+  user_data.init_folders()
+  user_data.init_settings()
+  # load settings into textboxes
+  global text_video
+  global text_music
+  data = user_data.load_settings()
+  text_video.setText(data[user_data.SECTION_APP_LINKS][user_data.LINK_VIDEO])
+  text_music.setText(data[user_data.SECTION_APP_LINKS][user_data.LINK_MUSIC])
 
 def _save_button_on_click():
   global text_music
   global text_video
-  settings_file = "settings.json"
-  data = {
-    "app_links": {
-      "video": text_video.text(),
-      "music": text_music.text()
-    }
-  }
-  _save_to_user_folder({settings_file: data})
-  print("saved settings to settings.json")
+  user_data.save_settings(video=text_video.text(), music=text_music.text())
 
 ## Change Directory
 base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -56,7 +32,7 @@ c = Controller()
 t = threading.Thread(target=c.start)
 t.start()
 
-## Application Window
+## Application Instance
 app = QApplication([])
 app.setQuitOnLastWindowClosed(False)
 
