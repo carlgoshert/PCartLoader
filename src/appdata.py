@@ -1,6 +1,6 @@
 import os, json
 
-class UserData:
+class AppData:
   SECTION_APP_LINKS = "app_links"
   LINK_VIDEO = "video"
   LINK_MUSIC = "music"

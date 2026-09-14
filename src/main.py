@@ -1,28 +1,28 @@
 import sys, os, subprocess, threading
 from .controller import Controller
-from .userdata import UserData
+from .appdata import AppData
 from PySide6.QtGui import *
 from PySide6.QtWidgets import *
 from PySide6.QtUiTools import QUiLoader
 
-user_data = UserData()
+app_data = AppData()
 
 ## Do on app start
 def _app_init():
   # make folders and settings.json if none exist
-  user_data.init_folders()
-  user_data.init_settings()
+  app_data.init_folders()
+  app_data.init_settings()
   # load settings into textboxes
   global text_video
   global text_music
-  data = user_data.load_settings()
-  text_video.setText(data[user_data.SECTION_APP_LINKS][user_data.LINK_VIDEO])
-  text_music.setText(data[user_data.SECTION_APP_LINKS][user_data.LINK_MUSIC])
+  data = app_data.load_settings()
+  text_video.setText(data[app_data.SECTION_APP_LINKS][app_data.LINK_VIDEO])
+  text_music.setText(data[app_data.SECTION_APP_LINKS][app_data.LINK_MUSIC])
 
 def _save_button_on_click():
   global text_music
   global text_video
-  user_data.save_settings(video=text_video.text(), music=text_music.text())
+  app_data.save_settings(video=text_video.text(), music=text_music.text())
 
 ## Change Directory
 base_dir = os.path.dirname(os.path.abspath(__file__))
