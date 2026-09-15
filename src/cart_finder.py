@@ -28,10 +28,14 @@ class CartManager:
 
   def run_cart(self, cartridge: Cartridge):
     settings_dict = self._load_settings_json()
+    print(cartridge.target_type)
     match cartridge.target_type:
       case "exe":
         print("process started")
-        subprocess.run(cartridge.path + cartridge.target, env=os.environ.copy())
+        # cmd = os.path.join(cartridge.path, cartridge.target)
+        cmd = cartridge.path + cartridge.target
+        args = cartridge.args
+        subprocess.run([cmd, args], env=os.environ.copy(), shell=True)
         return
       case "video":
         video_link = settings_dict["app_links"]["video"]
@@ -61,10 +65,9 @@ class CartManager:
         cart_path = mount_dir
         config = configparser.ConfigParser()
         config.read(conf_path)
-        section = "cartridge"
-        cart_name = config[section]["name"].replace("\"", "")
-        cart_target = config[section]["target"].replace("\"", "")
-        cart_args = config[section]["args"].replace("\"", "")
-        cart_type = config[section]["type"].replace("\"", "")
+        cart_name = config["cartridge"]["name"].replace("\"", "")
+        cart_target = config["cartridge"]["target"].replace("\"", "")
+        cart_args = config["cartridge"]["args"].replace("\"", "")
+        cart_type = config["cartridge"]["type"].replace("\"", "")
         print(cart_path + cart_target)
         return Cartridge(cart_path, cart_name, cart_target, cart_args, cart_type)

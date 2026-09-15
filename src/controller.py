@@ -12,7 +12,7 @@ class Controller:
       self.mounter._unmount(mount_point)
   
   def start(self):#TODO: add initial check for mounted or unmounted carts and run them
-    self.mounter = USBMounter(self._on_mount)
+    self.mounter = USBMounter(self._on_mount) #TODO: Replace with udev monitor for new partitions, not usb devices
     self.mounter.start()
     self.manager = CartManager()
 

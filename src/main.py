@@ -4,7 +4,8 @@ from PySide6.QtWidgets import *
 from PySide6.QtUiTools import QUiLoader
 from .controller import Controller
 from .appdata import AppData
-from .settings_window import SettingsWindow
+from .ui_settings_window import SettingsWindow
+from .ui_config_window import ConfigWindow
 
 ## App Working Directory
 base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -31,8 +32,14 @@ tray.setToolTip("PCart Loader")
 #Settings menu option
 settingsAction = QAction("Settings")
 s_window = SettingsWindow()
-showWindow = lambda : s_window.window.show()
-settingsAction.triggered.connect(showWindow)
+show_settings = lambda : s_window.window.show()
+settingsAction.triggered.connect(show_settings)
+
+#Config menu option
+configAction = QAction("Create Config")
+c_window = ConfigWindow()
+show_configurator = lambda : c_window.window.show()
+configAction.triggered.connect(show_configurator)
 
 #Quit menu option
 quitAction = QAction("Quit")
@@ -40,6 +47,7 @@ quitAction.triggered.connect(app.quit)
 
 #System tray menu
 menu = QMenu()
+menu.addAction(configAction)
 menu.addAction(settingsAction)
 menu.addAction(quitAction)
 tray.setContextMenu(menu)
