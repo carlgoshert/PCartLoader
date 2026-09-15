@@ -3,7 +3,6 @@ import pyudev
 
 class UdevMonitor:
   _mount_callback = None
-  # _devices = []
 
   def __init__(self, mount_cb):
     if mount_cb == None:
@@ -24,11 +23,9 @@ class UdevMonitor:
     match action:
       case "add":
         print(f'Connected: {device.device_node}')
-        # self._devices.append(device.device_node)
         self._mount(device.device_node)
       case "remove":
         print(f'Disconnected: {device.device_node}')
-        # self._devices.append(device.device_node)
 
   def start(self):
     context = pyudev.Context()

@@ -1,22 +1,7 @@
 import os, configparser, subprocess, json
-
-class Cartridge:
-  name = ""
-  path = ""
-  target = ""
-  args = ""
-  target_type = ""
-
-  def __init__(self, path, name, target, args, t_type):
-    self.path = path
-    self.name = name
-    self.target = target
-    self.args = args
-    self.target_type = t_type
+from .classes import Cartridge
 
 class CartManager:
-  #TODO add list of active carts to dropdown in system tray icon to relaunch connected carts, remove from list when disconnected
-
   def _load_settings_json(self):
     user_path = os.path.expanduser('~')
     share_path = os.path.join(user_path, ".local/share/PCartLoader")
@@ -61,8 +46,8 @@ class CartManager:
         print("found it!")
         print(mount_dir)
         print(file)
-        conf_path = mount_dir + "/cartridge.ini"
         cart_path = mount_dir
+        conf_path = os.path.join(cart_path, "cartridge.ini")
         config = configparser.ConfigParser()
         config.read(conf_path)
         cart_name = config["cartridge"]["name"].replace("\"", "")
@@ -71,3 +56,24 @@ class CartManager:
         cart_type = config["cartridge"]["type"].replace("\"", "")
         print(cart_path + cart_target)
         return Cartridge(cart_path, cart_name, cart_target, cart_args, cart_type)
+
+  def get_attached(self) -> list[Cartridge]:
+    carts = []
+    mntpnts = ["/mnt", "/media"]
+    skip = []
+    for start in mntpnts:
+      for root, dirs, files in os.walk(start):
+        dirs[:] = [d for d in dirs if not any(os.path.join(root, d).startswith(s) for s in skip)]
+        if "cartridge.ini" in files and not "Trash" in root:
+          cart_path = root
+          conf_path = os.path.join(cart_path, "cartridge.ini")
+          config = configparser.ConfigParser()
+          config.read(conf_path)
+          cart_name = config["cartridge"]["name"].replace("\"", "")
+          cart_target = config["cartridge"]["target"].replace("\"", "")
+          cart_args = config["cartridge"]["args"].replace("\"", "")
+          cart_type = config["cartridge"]["type"].replace("\"", "")
+          print(f'cart found already attached at {cart_path}')
+          carts.append(Cartridge(cart_path, cart_name, cart_target, cart_args, cart_type))
+          skip.append(os.path.dirname(root))
+    return carts

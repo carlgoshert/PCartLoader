@@ -2,18 +2,20 @@ import sys, os, subprocess, threading
 from PySide6.QtGui import *
 from PySide6.QtWidgets import *
 from PySide6.QtUiTools import QUiLoader
-from .controller import Controller
 from .appdata import AppData
 from .ui_settings_window import SettingsWindow
 from .ui_config_window import ConfigWindow
+from .pcart.loader import Loader
+from .pcart.classes import Cartridge
+from .pcart.cart_finder import CartManager
 
 ## App Working Directory
 base_dir = os.path.dirname(os.path.abspath(__file__))
 
-## Subprocesses
-c = Controller()
-t = threading.Thread(target=c.start)
-t.start()
+## Background process
+l = Loader()
+t1 = threading.Thread(target=l.start)
+t1.start()
 
 ## Application Instance
 app = QApplication([])
@@ -47,10 +49,23 @@ quitAction.triggered.connect(app.quit)
 
 #System tray menu
 menu = QMenu()
+cartsMenu = menu.addMenu("PCarts")
 menu.addAction(configAction)
 menu.addAction(settingsAction)
 menu.addAction(quitAction)
 tray.setContextMenu(menu)
+
+#Submenu list of preloaded cartridges
+class LoadedCart:
+  cart: Cartridge = None
+  loader: Loader = None
+  def __init__(self, cart, loader):
+    self.cart = cart
+    self.loader = loader
+  def run(self):
+    self.loader.run_cart(self.cart)
+
+loaded_carts: list[LoadedCart] = []
 
 ## Do on app start
 def _app_init():
@@ -62,7 +77,19 @@ def _app_init():
   data = app_data.load_settings()
   s_window.text_video.setText(data[app_data.SECTION_APP_LINKS][app_data.LINK_VIDEO])
   s_window.text_music.setText(data[app_data.SECTION_APP_LINKS][app_data.LINK_MUSIC])
+  # get carts already attached
+  for cart in l.get_attached():
+    lcart = LoadedCart(cart, l)
+    cartAction = cartsMenu.addAction(cart.name)
+    cartAction.triggered.connect(lcart.run)
+    loaded_carts.append(lcart) # holding objects in memory
 
 ## Run App
 _app_init()
 sys.exit(app.exec())
+
+## TODO: for v1.1.0
+## - remove pcarts from dropdown when disconnected
+## - add pcarts to dropdown when connected
+## - make Windows executable
+## - make appimage auto updating
