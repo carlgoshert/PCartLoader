@@ -75,5 +75,5 @@ class CartManager:
           cart_type = config["cartridge"]["type"].replace("\"", "")
           print(f'cart found already attached at {cart_path}')
           carts.append(Cartridge(cart_path, cart_name, cart_target, cart_args, cart_type))
-          skip.append(os.path.dirname(root))
+          skip.append(root)
     return carts
