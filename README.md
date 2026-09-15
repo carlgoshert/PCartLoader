@@ -1,6 +1,6 @@
 # PCartLoader
 
-This is a simple python Qt app for Linux built on PySide6 and usbx that automatically mounts newly connected devices and, if a PCart config file is found, launches the application targeted by the config file.
+This is a simple python Qt app for Linux built on PySide6 and pyudev that automatically mounts newly connected devices and, if a PCart config file is found, launches the application targeted by the config file.
 
 When launched, the application immediately minimizes to the system tray. Right click to close the application or access the settings menu. In the settings menu, you can specificy what local applications to use with various cartridge target types.
 

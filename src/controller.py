@@ -1,5 +1,6 @@
 from .cart_finder import CartManager, Cartridge
-from .automount import USBMounter
+# from .automount import USBMounter
+from .automount import UdevMonitor
 
 class Controller:
   mounter = None
@@ -9,10 +10,10 @@ class Controller:
     cart = self.manager.check_dir(mount_point)
     if cart:
       self.manager.run_cart(cart)
-      self.mounter._unmount(mount_point)
   
-  def start(self):#TODO: add initial check for mounted or unmounted carts and run them
-    self.mounter = USBMounter(self._on_mount) #TODO: Replace with udev monitor for new partitions, not usb devices
+  def start(self):
+    #TODO: add initial check for mounted or unmounted carts and add to list
+    self.mounter = UdevMonitor(self._on_mount)
     self.mounter.start()
     self.manager = CartManager()
 
