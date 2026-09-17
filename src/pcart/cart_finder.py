@@ -63,7 +63,7 @@ class CartManager:
     skip = []
     for start in mntpnts:
       for root, dirs, files in os.walk(start):
-        dirs[:] = [d for d in dirs if not any(os.path.join(root, d).startswith(s) for s in skip)]
+        dirs[:] = [d for d in dirs if not any(os.path.join(root, d).startswith(s) for s in skip) and os.path.join(root, d).count('/') <= 3]
         if "cartridge.ini" in files and not "Trash" in root:
           cart_path = root
           conf_path = os.path.join(cart_path, "cartridge.ini")

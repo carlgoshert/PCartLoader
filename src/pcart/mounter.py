@@ -9,9 +9,9 @@ class UdevMonitor:
       raise Exception("mount callback required for automount")
     self._mount_callback = mount_cb
 
-  def _mount(self, device: str):
-    print(f"mounting {device}")
-    cmd = "udisksctl mount -b " + device
+  def _mount(self, node_path: str):
+    print(f"mounting {node_path}")
+    cmd = "udisksctl mount -b " + node_path
     proc = subprocess.run([cmd], capture_output=True, text=True, shell=True)
     mount_point = proc.stdout.split(" at ")[-1].strip()
     os.chmod(mount_point, 0o755)

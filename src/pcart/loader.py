@@ -3,24 +3,23 @@ from .classes import Cartridge
 from .mounter import UdevMonitor
 
 class Loader:
-  mounter = None
-  manager = None
+  _mounter = None
+  _manager = None
 
   def __init__(self):
-    self.mounter = UdevMonitor(self._on_mount)
-    self.manager = CartManager()
+    self._mounter = UdevMonitor(self._on_mount)
+    self._manager = CartManager()
 
   def _on_mount(self, mount_point):
-    cart = self.manager.check_dir(mount_point)
+    cart = self._manager.check_dir(mount_point)
     if cart:
-      self.manager.run_cart(cart)
-      self.attached_cb(cart, self)
+      self._manager.run_cart(cart)
   
   def start(self):
-    self.mounter.start()
+    self._mounter.start()
   
   def run_cart(self, cart: Cartridge):
-    self.manager.run_cart(cart)
+    self._manager.run_cart(cart)
 
   def get_attached(self) -> list[Cartridge]:
-    return self.manager.get_attached()
+    return self._manager.get_attached()
