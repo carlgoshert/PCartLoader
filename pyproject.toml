@@ -1,6 +1,6 @@
 [project]
 name = "PCartLoader"
-version = "1.0.0"
+version = "1.1.0"
 requires-python = ">=3.11"
 dependencies = [
     "pyudev>=0.24.4",
@@ -19,8 +19,9 @@ src = ["*.ui", "*.png"]
 [tool.pyproject-appimage]
 script = "PCartLoader"
 output = "PCartLoader.AppImage"
-icon = "src/icon.png"
+icon = "./src/icon.png"
 desktop-entry = "PCartLoader.desktop"
+updateinformation = "gh-releases-zsync|carlgoshert|PCartLoader|latest|*.AppImage.zsync"
 
 [build-system]
 requires = ["setuptools>=68"]
