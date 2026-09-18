@@ -40,11 +40,9 @@ class Loader:
   def run_cart(self, cart: Cartridge):
     self._manager.run_cart(cart)
 
-  def _get_attached(self) -> list[Cartridge]:
-    return self._manager.get_attached()
-  
-  def get_loaded(self) -> list[LoadedCart]:
-    for cart in self._get_attached():
+  def get_attached(self) -> list[LoadedCart]:
+    carts = self._manager.get_attached()
+    for cart in carts:
       cmd = f"mount | grep '{cart.path}' | awk '{{print $1}}'"
       proc = subprocess.run([cmd], capture_output=True, text=True, shell=True)
       node_path = proc.stdout

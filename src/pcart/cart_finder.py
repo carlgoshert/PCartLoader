@@ -59,21 +59,19 @@ class CartManager:
 
   def get_attached(self) -> list[Cartridge]:
     carts = []
-    mntpnts = ["/mnt", "/media"]
     skip = []
-    for start in mntpnts:
-      for root, dirs, files in os.walk(start):
-        dirs[:] = [d for d in dirs if not any(os.path.join(root, d).startswith(s) for s in skip) and os.path.join(root, d).count('/') <= 3]
-        if "cartridge.ini" in files and not "Trash" in root:
-          cart_path = root
-          conf_path = os.path.join(cart_path, "cartridge.ini")
-          config = configparser.ConfigParser()
-          config.read(conf_path)
-          cart_name = config["cartridge"]["name"].replace("\"", "")
-          cart_target = config["cartridge"]["target"].replace("\"", "")
-          cart_args = config["cartridge"]["args"].replace("\"", "")
-          cart_type = config["cartridge"]["type"].replace("\"", "")
-          print(f'cart found already attached at {cart_path}')
-          carts.append(Cartridge(cart_path, cart_name, cart_target, cart_args, cart_type))
-          skip.append(root)
+    for root, dirs, files in os.walk("/media"):
+      dirs[:] = [d for d in dirs if not any(os.path.join(root, d).startswith(s) for s in skip) and os.path.join(root, d).count('/') <= 3]
+      if "cartridge.ini" in files and not "Trash" in root:
+        cart_path = root
+        conf_path = os.path.join(cart_path, "cartridge.ini")
+        config = configparser.ConfigParser()
+        config.read(conf_path)
+        cart_name = config["cartridge"]["name"].replace("\"", "")
+        cart_target = config["cartridge"]["target"].replace("\"", "")
+        cart_args = config["cartridge"]["args"].replace("\"", "")
+        cart_type = config["cartridge"]["type"].replace("\"", "")
+        print(f'cart found already attached at {cart_path}')
+        carts.append(Cartridge(cart_path, cart_name, cart_target, cart_args, cart_type))
+        skip.append(root)
     return carts

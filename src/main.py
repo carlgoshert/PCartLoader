@@ -54,30 +54,30 @@ class SystemTrayIcon(QSystemTrayIcon):
     self.queue = Queue()
     self.loader = Loader(self.queue)
     self.worker = QueueWorker(self.queue)
-    self.worker.item_received.connect(self.on_item_received)
+    self.worker.item_received.connect(self._on_item_received)
     self.queue_thread = QThread()
-    atexit.register(self.on_exit)
+    atexit.register(self._on_exit)
   
-  def on_exit(self):
+  def _on_exit(self):
     self.worker.stop()
     self.queue_thread.quit()
     self.queue_thread.wait()
   
-  def on_item_received(self, item: dict):
+  def _on_item_received(self, item: dict):
     match item["action"]:
       case "add":
         print("adding cart")
-        self.on_cart_added(item["cart"])
+        self._on_cart_added(item["cart"])
       case "remove":
         print("removing cart")
-        self.on_cart_removed(item["cart"])
+        self._on_cart_removed(item["cart"])
 
-  def on_cart_added(self, lcart):
+  def _on_cart_added(self, lcart):
     print("add item received from queue")
     cart_action = self.menu.carts_menu.addAction(lcart.cart.name)
     cart_action.triggered.connect(lcart.run)
   
-  def on_cart_removed(self, lcart):
+  def _on_cart_removed(self, lcart):
     print("remove item received from queue")
     cart_action: QAction = None
     for action in self.menu.carts_menu.actions():
@@ -98,19 +98,17 @@ class SystemTrayIcon(QSystemTrayIcon):
     self.menu.s_window.text_video.setText(data[app_data.SECTION_APP_LINKS][app_data.LINK_VIDEO])
     self.menu.s_window.text_music.setText(data[app_data.SECTION_APP_LINKS][app_data.LINK_MUSIC])
   
-  def _get_loaded_carts(self):
-    for lcart in self.loader.get_loaded():
+  def _get_attached_carts(self):
+    for lcart in self.loader.get_attached():
       cart_action = self.menu.carts_menu.addAction(lcart.cart.name)
       cart_action.triggered.connect(lcart.run)
 
   def start(self):
     app_data = self._init_settings()
     self._setup_settings_window(app_data)
-    self._get_loaded_carts()
     self.loader_thread = threading.Thread(target=self.loader.start)
     self.loader_thread.start()
-    # self.thread2 = threading.Thread(target=self.worker.start)
-    # self.thread2.start()
+    self._get_attached_carts()
     self.worker.moveToThread(self.queue_thread)
     self.queue_thread.started.connect(self.worker.start)
     self.queue_thread.start()
@@ -121,8 +119,3 @@ app.setQuitOnLastWindowClosed(False)
 tray = SystemTrayIcon(app)
 tray.start()
 sys.exit(app.exec())
-
-## TODO: for v1.1.0
-## - still need to automount and add carts that are plugged in but not mounted at start
-## - make Windows executable
-## - make appimage auto updating
