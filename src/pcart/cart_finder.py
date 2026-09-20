@@ -13,29 +13,33 @@ class CartManager:
 
   def run_cart(self, cartridge: Cartridge):
     settings_dict = self._load_settings_json()
+    target_path = '"' + cartridge.path + cartridge.target + '"'
     print(cartridge.target_type)
     match cartridge.target_type:
       case "exe":
         print("process started")
-        # cmd = os.path.join(cartridge.path, cartridge.target)
         cmd = cartridge.path + cartridge.target
         args = cartridge.args
         subprocess.run([cmd, args], env=os.environ.copy(), shell=True)
         return
       case "video":
         video_link = settings_dict["app_links"]["video"]
-        subprocess.run(video_link + " " + cartridge.target, shell=True)
+        subprocess.run(video_link + " " + target_path, shell=True)
         return
       case "music":
         music_link = settings_dict["app_links"]["music"]
-        subprocess.run(music_link + " " + cartridge.target, shell=True)
+        subprocess.run(music_link + " " + target_path, shell=True)
         return
       case _:
+        print("custom link selected")
         matches_custom = False
-        # custom_types = []
-        # for custom_type, link in custom_types:
-        #   if custom_type == cartridge.target_type:
-        #     subprocess.run(link + " " + cartridge.target, shell=True)
+        custom_types = settings_dict["app_links"]["custom"]
+        for ty, ln in custom_types.items():
+          if cartridge.target_type == ty:
+            matches_custom = True
+            print(f'launching {ln} {target_path}')
+            subprocess.run(ln + ' ' + target_path, shell=True)
+            return
         if not matches_custom:
           print("cartridge target_type not recognized")
 

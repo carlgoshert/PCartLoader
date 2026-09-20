@@ -99,16 +99,49 @@
             <string>Custom App Links</string>
            </property>
           </widget>
+          <widget class="QWidget" name="verticalLayoutWidget_2">
+           <property name="geometry">
+            <rect>
+             <x>9</x>
+             <y>39</y>
+             <width>761</width>
+             <height>371</height>
+            </rect>
+           </property>
+           <layout class="QVBoxLayout" name="vertCustom">
+            <item>
+             <spacer name="verticalSpacer">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QPushButton" name="buttonAdd">
+           <property name="geometry">
+            <rect>
+             <x>180</x>
+             <y>10</y>
+             <width>91</width>
+             <height>23</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Add New Link</string>
+           </property>
+          </widget>
          </widget>
         </widget>
        </item>
       </layout>
      </widget>
-    </widget>
-    <widget class="QWidget" name="tabWine">
-     <attribute name="title">
-      <string>W.I.P.</string>
-     </attribute>
     </widget>
    </widget>
    <widget class="QPushButton" name="buttonSave">
