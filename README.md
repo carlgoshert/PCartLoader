@@ -8,8 +8,6 @@ When launched, the application immediately minimizes to the system tray. Right c
 
 A PCart config file should be named "cartridge.ini" and exist at the top-level of the device filesystem. Below is the expected config layout.
 
-*note: custom target types are not yet supported*
-
 ```
 [cartridge]
 name = "cartridge name"     ; Whatever you want to name it
