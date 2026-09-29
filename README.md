@@ -36,7 +36,9 @@ Configuration settings for PCartLoader can be found in ~/.local/share/PCartLoade
 {
   "app_links": {
     "video": "/path/to/video/player",
-    "music": "/path/to/music/player"
+    "music": "/path/to/music/player",
+    "custom": {
+    }
   }
 }
 ```
