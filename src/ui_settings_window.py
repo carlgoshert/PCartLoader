@@ -28,8 +28,10 @@ class SettingsWindow:
   text_video: QLineEdit = None
   text_music: QLineEdit = None
   custom_links: dict[CustomLinkWidget] = []
+  app_data: AppData
 
-  def __init__(self):
+  def __init__(self, app_d: AppData):
+    self.app_data = app_d
     loader = QUiLoader()
     ui_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "SettingsWindow.ui")
     self.window = loader.load(ui_path, None)
@@ -40,10 +42,9 @@ class SettingsWindow:
     self._get_custom_links_from_settings()
   
   def _get_custom_links_from_settings(self):
-    app_data = AppData()
-    data = app_data.load_settings()
-    if app_data.LINK_CUSTOM in data[app_data.SECTION_APP_LINKS]:
-      custom = data[app_data.SECTION_APP_LINKS][app_data.LINK_CUSTOM]
+    data = self.app_data.load_settings()
+    if self.app_data.LINK_CUSTOM in data[self.app_data.SECTION_APP_LINKS]:
+      custom = data[self.app_data.SECTION_APP_LINKS][self.app_data.LINK_CUSTOM]
       for ty, ln in custom.items():
         link_widget = CustomLinkWidget(self.window)
         link_widget.button_delete.clicked.connect(lambda : self._on_delete_button_clicked(False, link_widget.button_delete))
@@ -53,11 +54,10 @@ class SettingsWindow:
         self.window.findChild(QVBoxLayout, "vertCustom").insertWidget(0, link_widget)
 
   def _on_save_button_click(self):
-    app_data = AppData()
     custom = {}
     for link_widget in self.custom_links:
       custom[link_widget.line_type.text()] = link_widget.line_link.text()
-    app_data.save_settings(video=self.text_video.text(), music=self.text_music.text(), custom=custom)
+    self.app_data.save_settings(video=self.text_video.text(), music=self.text_music.text(), custom=custom)
     popup = CustomPopup("Settings", "Settings saved to appdata folder")
     popup.exec()
 

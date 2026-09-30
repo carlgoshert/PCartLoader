@@ -19,13 +19,13 @@ class TopMenu(QMenu):
   c_window: ConfigWindow = None
   s_window: SettingsWindow = None
 
-  def __init__(self, app: QApplication):
+  def __init__(self, app: QApplication, app_data: AppData):
     super().__init__()
     self.config_action = QAction('Create Config')
     self.c_window = ConfigWindow()
     self.config_action.triggered.connect(lambda: self.c_window.window.show())
     self.settings_action = QAction('Settings')
-    self.s_window = SettingsWindow()
+    self.s_window = SettingsWindow(app_data)
     self.settings_action.triggered.connect(lambda : self.s_window.window.show())
     self.quit_action = QAction('Quit')
     self.quit_action.triggered.connect(app.quit)
@@ -43,13 +43,16 @@ class SystemTrayIcon(QSystemTrayIcon):
   queue_thread: QThread = None
   queue: Queue = None
   worker: QueueWorker = None
+  app_data = AppData()
 
   def __init__(self, app: QApplication):
     super().__init__()
+    self.app_data.init_folders()
+    self.app_data.init_settings()
     self.setIcon(QIcon(os.path.join(self.base_dir, 'icon.png')))
     self.setVisible(True)
     self.setToolTip('PCart Loader')
-    self.menu = TopMenu(app)
+    self.menu = TopMenu(app, self.app_data)
     self.setContextMenu(self.menu)
     self.queue = Queue()
     self.loader = Loader(self.queue)
@@ -87,16 +90,10 @@ class SystemTrayIcon(QSystemTrayIcon):
     if cart_action:
       self.menu.carts_menu.removeAction(cart_action)
   
-  def _init_settings(self):
-    app_data = AppData()
-    app_data.init_folders()
-    app_data.init_settings()
-    return app_data
-  
-  def _setup_settings_window(self, app_data):
-    data = app_data.load_settings()
-    self.menu.s_window.text_video.setText(data[app_data.SECTION_APP_LINKS][app_data.LINK_VIDEO])
-    self.menu.s_window.text_music.setText(data[app_data.SECTION_APP_LINKS][app_data.LINK_MUSIC])
+  def _setup_settings_window(self):
+    data = self.app_data.load_settings()
+    self.menu.s_window.text_video.setText(data[self.app_data.SECTION_APP_LINKS][self.app_data.LINK_VIDEO])
+    self.menu.s_window.text_music.setText(data[self.app_data.SECTION_APP_LINKS][self.app_data.LINK_MUSIC])
   
   def _get_attached_carts(self):
     for lcart in self.loader.get_attached():
@@ -104,8 +101,7 @@ class SystemTrayIcon(QSystemTrayIcon):
       cart_action.triggered.connect(lcart.run)
 
   def start(self):
-    app_data = self._init_settings()
-    self._setup_settings_window(app_data)
+    self._setup_settings_window()
     self.loader_thread = threading.Thread(target=self.loader.start)
     self.loader_thread.start()
     self._get_attached_carts()
