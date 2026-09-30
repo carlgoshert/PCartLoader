@@ -49,5 +49,5 @@ class QueueWorker(QObject):
           print("found item in queue")
           self.item_received.emit(item)
           self._queue.task_done()
-        except:
+        except Exception:
           print("Exception raised while accessing cartridge queue")

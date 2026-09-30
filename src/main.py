@@ -55,7 +55,7 @@ class SystemTrayIcon(QSystemTrayIcon):
     self.menu = TopMenu(app, self.app_data)
     self.setContextMenu(self.menu)
     self.queue = Queue()
-    self.loader = Loader(self.queue)
+    self.loader = Loader(self.queue, self.app_data)
     self.worker = QueueWorker(self.queue)
     self.worker.item_received.connect(self._on_item_received)
     self.queue_thread = QThread()
@@ -91,7 +91,7 @@ class SystemTrayIcon(QSystemTrayIcon):
       self.menu.carts_menu.removeAction(cart_action)
   
   def _setup_settings_window(self):
-    data = self.app_data.load_settings()
+    data = self.app_data.data
     self.menu.s_window.text_video.setText(data[self.app_data.SECTION_APP_LINKS][self.app_data.LINK_VIDEO])
     self.menu.s_window.text_music.setText(data[self.app_data.SECTION_APP_LINKS][self.app_data.LINK_MUSIC])
   

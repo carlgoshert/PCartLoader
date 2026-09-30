@@ -6,19 +6,20 @@ class UdevMonitor:
   _unmount_callback = None
 
   def __init__(self, mount_cb, unmount_cb):
-    if mount_cb == None:
-      raise Exception("mount callback required for automount")
     self._mount_callback = mount_cb
     self._unmount_callback = unmount_cb
 
   def _mount(self, node_path: str):
-    print(f"mounting {node_path}")
-    cmd = "udisksctl mount -b " + node_path
-    proc = subprocess.run([cmd], capture_output=True, text=True, shell=True)
-    mount_point = proc.stdout.split(" at ")[-1].strip()
-    os.chmod(mount_point, 0o755)
-    print(mount_point)
-    self._mount_callback(mount_point, node_path)
+    try:
+      print(f"mounting {node_path}")
+      cmd = "udisksctl mount -b " + node_path
+      proc = subprocess.run([cmd], capture_output=True, text=True, shell=True)
+      mount_point = proc.stdout.split(" at ")[-1].strip()
+      os.chmod(mount_point, 0o755)
+      print(mount_point)
+      self._mount_callback(mount_point, node_path)
+    except Exception:
+      print(f"unable to mount {node_path}")
   
   def _unmount(self, node_path: str):
     print(f'unmounting {node_path}')

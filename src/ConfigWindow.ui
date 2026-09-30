@@ -19,7 +19,7 @@
      <rect>
       <x>0</x>
       <y>0</y>
-      <width>311</width>
+      <width>371</width>
       <height>25</height>
      </rect>
     </property>
@@ -27,7 +27,7 @@
      <item>
       <widget class="QPushButton" name="buttonDrive">
        <property name="text">
-        <string>Choose Cartridge Drive</string>
+        <string>New Config Location</string>
        </property>
       </widget>
      </item>
@@ -41,7 +41,7 @@
      <item>
       <widget class="QPushButton" name="buttonLoad">
        <property name="text">
-        <string>Load Config</string>
+        <string>Load Existing Config</string>
        </property>
       </widget>
      </item>
@@ -252,6 +252,32 @@
       </spacer>
      </item>
     </layout>
+   </widget>
+   <widget class="QLabel" name="label_5">
+    <property name="geometry">
+     <rect>
+      <x>380</x>
+      <y>0</y>
+      <width>119</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Cartridge Location:</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="labelDir">
+    <property name="geometry">
+     <rect>
+      <x>510</x>
+      <y>0</y>
+      <width>291</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">

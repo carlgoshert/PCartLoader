@@ -1,20 +1,7 @@
 import os, configparser
 from PySide6.QtWidgets import *
 from PySide6.QtUiTools import QUiLoader
-from .custom_gui import CustomPopup
-
-class CustomBoxWidget(QWidget):
-  line_type: QLineEdit = None
-  
-  def __init__(self, parent, text_callback):
-    super().__init__(parent=parent)
-    h_layout = QHBoxLayout()
-    h_layout.addWidget(QLabel("custom type"))
-    self.line_type = QLineEdit(parent=self)
-    self.line_type.textChanged.connect(text_callback)
-    h_layout.addWidget(self.line_type)
-    h_layout.addSpacerItem(QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum))
-    self.setLayout(h_layout)
+from .custom_gui import CustomPopup, CustomBoxWidget
 
 class ConfigWindow:
   cart_dir: str = ""
@@ -27,6 +14,7 @@ class ConfigWindow:
   line_args: QLineEdit = None
   combo_type: QComboBox = None
   custom_box: CustomBoxWidget = None
+  label_dir: QLabel = None
 
   def __init__(self):
     loader = QUiLoader()
@@ -50,6 +38,7 @@ class ConfigWindow:
     self.button_target.clicked.connect(self._on_target_button_clicked)
     self.custom_box = CustomBoxWidget(self.window, self._on_text_changed)
     self.window.findChild(QVBoxLayout, "vertLineEdits").addWidget(self.custom_box)
+    self.label_dir = self.window.findChild(QLabel, "labelDir")
     self.custom_box.hide()
   
   def _on_text_changed(self, text):
@@ -79,9 +68,10 @@ class ConfigWindow:
   def _on_drive_button_clicked(self):
     folder = self._open_folder_dialog()
     if folder:
+      self.cart_dir = folder
       print(folder)
       self._unlock_controls()
-      self.cart_dir = folder
+      self._clear_controls()
     
   def _open_load_dialog(self):
     dialog = QFileDialog(self.window)
@@ -93,33 +83,44 @@ class ConfigWindow:
       return file, folder
   
   def _update_controls(self, config):
+    self.label_dir.setText(self.cart_dir)
     self.line_name.setText(config["cartridge"]["name"].replace("\"", ""))
     self.line_target.setText(config["cartridge"]["target"].replace("\"", ""))
     self.line_args.setText(config["cartridge"]["args"].replace("\"", ""))
-    match config["cartridge"]["type"].replace("\"", ""):
-      case "exe":
-        self.combo_type.setCurrentIndex(0)
-      case "video":
-        self.combo_type.setCurrentIndex(1)
-      case "music":
-        self.combo_type.setCurrentIndex(2)
-      case _:
-        self.combo_type.setCurrentIndex(3)
-        self.custom_box.show()
-        self.custom_box.line_type.setText(config["cartridge"]["type"].replace("\"", ""))
+    if "cartridge" in config:
+      if "type" in config["cartridge"]:
+        match config["cartridge"]["type"].replace("\"", ""):
+          case "exe":
+            self.combo_type.setCurrentIndex(0)
+          case "video":
+            self.combo_type.setCurrentIndex(1)
+          case "music":
+            self.combo_type.setCurrentIndex(2)
+          case _:
+            self.combo_type.setCurrentIndex(3)
+            self.custom_box.show()
+            self.custom_box.line_type.setText(config["cartridge"]["type"].replace("\"", ""))
+  
+  def _clear_controls(self):
+    self.line_name.setText('')
+    self.line_target.setText('')
+    self.line_args.setText('')
+    self.combo_type.setCurrentIndex(0)
+    self.custom_box.hide()
+    self.text_preview.setText('')
   
   def _update_preview(self):
     cart_name = self.line_name.text()
     cart_target = self.line_target.text()
     cart_args = self.line_args.text()
     cart_type = self.combo_type.currentText() if self.combo_type.currentText() != "custom" else self.custom_box.line_type.text()
-    preview = '''
+    preview = f'''
     [cartridge]
-    name = {name}
-    target = {target}
-    args = {args}
-    type = {type}
-    '''.format(name=cart_name, target=cart_target, args=cart_args, type=cart_type)
+    name = {cart_name}
+    target = {cart_target}
+    args = {cart_args}
+    type = {cart_type}
+    '''
     self.text_preview.setText(preview)
 
   def _on_load_button_clicked(self):
@@ -127,10 +128,12 @@ class ConfigWindow:
     if file:
       config = configparser.ConfigParser()
       config.read(file)
+      self.cart_dir = folder
+      print(folder)
+      self._clear_controls()
       self._unlock_controls()
       self._update_controls(config)
       self._update_preview()
-      self.cart_dir = folder
   
   def _on_save_button_clicked(self):
     cart_name = self.line_name.text()
@@ -144,14 +147,13 @@ class ConfigWindow:
     config.set("cartridge", "target", cart_target)
     config.set("cartridge", "args", cart_args)
     config.set("cartridge", "type", cart_type)
-    if not os.path.exists(out_path):
-      with open(out_path, 'x') as f:
+    try:
+      mode = 'x' if not os.path.exists(out_path) else 'w'
+      with open(out_path, mode) as f:
         config.write(f)
-    else:
-      with open(out_path, 'w') as f:
-        config.write(f)
-    popup = CustomPopup("Config File Creator", "Config file has been saved: cartridge.ini")
-    popup.exec()
+      CustomPopup("Config File Creator", "Config file has been saved: cartridge.ini").exec()
+    except Exception:
+      CustomPopup("Error", f"Could not write to config file {out_path}")
   
   def _open_file_dialog(self):
     dialog = QFileDialog(self.window)
@@ -164,5 +166,5 @@ class ConfigWindow:
   def _on_target_button_clicked(self):
     target = self._open_file_dialog()
     if target:
-      target = target.replace(self.cart_dir, '')
+      target = target.replace(self.cart_dir, '').replace('/', '')
       self.line_target.setText(target)
