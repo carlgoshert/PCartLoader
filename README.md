@@ -33,11 +33,6 @@ pyproject-appimage
 ```
 I recommend using [Gear Lever](https://flathub.org/en/apps/it.mijorus.gearlever) to install and manage the AppImage file.
 
-If you are on an X11 window system, you may need to first install 'libscb-cursor0' to run Qt6.5+.
-```
-sudo apt install libxcb-cursor0
-```
-
 ## Usage
 
 Simply launch PCartLoader.AppImage and allow it to run in the background. Plug in a PCart Reader and slot in a cartridge.
