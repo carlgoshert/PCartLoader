@@ -114,12 +114,22 @@
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="buttonTarget">
+        <widget class="QPushButton" name="buttonFile">
          <property name="enabled">
           <bool>false</bool>
          </property>
          <property name="text">
-          <string>Select</string>
+          <string>Pick File</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="buttonFolder">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="text">
+          <string>Pick Folder</string>
          </property>
         </widget>
        </item>

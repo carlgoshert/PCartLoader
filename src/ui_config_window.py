@@ -7,7 +7,8 @@ class ConfigWindow:
   cart_dir: str = ""
   window: QMainWindow = None
   button_save: QPushButton = None
-  button_target: QPushButton = None
+  button_file: QPushButton = None
+  button_folder: QPushButton = None
   text_preview: QTextEdit = None
   line_name: QLineEdit = None
   line_target: QLineEdit = None
@@ -35,8 +36,10 @@ class ConfigWindow:
     self.window.findChild(QPushButton, "buttonLoad").clicked.connect(self._on_load_button_clicked)
     self.button_save = self.window.findChild(QPushButton, "buttonSave")
     self.button_save.clicked.connect(self._on_save_button_clicked)
-    self.button_target = self.window.findChild(QPushButton, "buttonTarget")
-    self.button_target.clicked.connect(self._on_target_button_clicked)
+    self.button_file = self.window.findChild(QPushButton, "buttonFile")
+    self.button_file.clicked.connect(self._on_file_button_clicked)
+    self.button_folder = self.window.findChild(QPushButton, "buttonFolder")
+    self.button_folder.clicked.connect(self._on_folder_button_clicked)
     self.custom_box = CustomBoxWidget(self.window, self._on_text_changed)
     self.window.findChild(QVBoxLayout, "vertLineEdits").addWidget(self.custom_box)
     self.label_dir = self.window.findChild(QLabel, "labelDir")
@@ -55,7 +58,8 @@ class ConfigWindow:
 
   def _unlock_controls(self):
     self.button_save.setEnabled(True)
-    self.button_target.setEnabled(True)
+    self.button_file.setEnabled(True)
+    self.button_folder.setEnabled(True)
     self.line_name.setEnabled(True)
     self.line_args.setEnabled(True)
     self.combo_type.setEnabled(True)
@@ -166,8 +170,14 @@ class ConfigWindow:
     if dialog.exec():
       return dialog.selectedFiles()[0]
 
-  def _on_target_button_clicked(self):
+  def _on_file_button_clicked(self):
     target = self._open_file_dialog()
+    if target:
+      target = target.replace(self.cart_dir, '').replace('/', '')
+      self.line_target.setText(target)
+  
+  def _on_folder_button_clicked(self):
+    target = self._open_folder_dialog()
     if target:
       target = target.replace(self.cart_dir, '').replace('/', '')
       self.line_target.setText(target)
