@@ -11,6 +11,7 @@ app.setQuitOnLastWindowClosed(False)
 from .appdata import AppData
 from .ui_settings_window import SettingsWindow
 from .ui_config_window import ConfigWindow
+from .ui_about_window import AboutWindow
 from .pcart.cart_loader import CartLoader
 from .pcart.classes import Cartridge, LoadedCart, QueueWorker
 from .pcart.cart_finder import CartManager
@@ -23,6 +24,7 @@ class TopMenu(QMenu):
   quit_action: QAction = None
   c_window: ConfigWindow = None
   s_window: SettingsWindow = None
+  a_window: AboutWindow = None
 
   def __init__(self, app: QApplication, app_data: AppData):
     super().__init__()
@@ -33,6 +35,9 @@ class TopMenu(QMenu):
     self.settings_action = QAction('Settings')
     self.s_window = SettingsWindow(app_data)
     self.settings_action.triggered.connect(lambda : self.s_window.window.show())
+    self.a_window = AboutWindow()
+    self.about_action = QAction("About")
+    self.about_action.triggered.connect(lambda : self.a_window.window.show())
     self.quit_action = QAction('Quit')
     self.quit_action.triggered.connect(app.quit)
 
@@ -40,6 +45,7 @@ class TopMenu(QMenu):
     self.carts_menu = self.addMenu('PCarts')
     self.addAction(self.config_action)
     self.addAction(self.settings_action)
+    self.addAction(self.about_action)
     self.addAction(self.quit_action)
 
 class SystemTrayIcon(QSystemTrayIcon):
