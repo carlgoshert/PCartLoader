@@ -18,6 +18,10 @@ args = ""                   ; Any arguments needed for a command-line launch. Le
 type = ""                   ; "music", "video", or "exe" by default. Anything else must be added to the list of custom options in the settings menu
 ```
 
+## Compatibility
+
+PCartLoader currently only runs on Linux distributions with Wayland desktop environments.
+
 ## Compile & Install
 
 PCartLoader is distributed as an AppImage built using [pyproject-appimage](https://pypi.org/project/pyproject-appimage/). Simply download the latest version from the Releases page, or build from source using:
@@ -28,6 +32,11 @@ cd PCartLoader-main
 pyproject-appimage
 ```
 I recommend using [Gear Lever](https://flathub.org/en/apps/it.mijorus.gearlever) to install and manage the AppImage file.
+
+If you are on an X11 window system, you may need to first install 'libscb-cursor0' to run Qt6.5+.
+```
+sudo apt install libxcb-cursor0
+```
 
 ## Usage
 

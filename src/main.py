@@ -4,6 +4,10 @@ from PySide6.QtCore import QThread, QObject, Signal
 from PySide6.QtGui import *
 from PySide6.QtWidgets import *
 from PySide6.QtUiTools import QUiLoader
+
+app = QApplication([])
+app.setQuitOnLastWindowClosed(False)
+
 from .appdata import AppData
 from .ui_settings_window import SettingsWindow
 from .ui_config_window import ConfigWindow
@@ -109,9 +113,6 @@ class SystemTrayIcon(QSystemTrayIcon):
     self.queue_thread.started.connect(self.worker.start)
     self.queue_thread.start()
 
-# if __name__ == "__main__":
-app = QApplication([])
-app.setQuitOnLastWindowClosed(False)
 tray = SystemTrayIcon(app)
 tray.start()
 sys.exit(app.exec())
