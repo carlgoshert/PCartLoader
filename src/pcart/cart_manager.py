@@ -1,4 +1,5 @@
 import os, configparser, subprocess, json
+from pathlib import Path
 from .classes import Cartridge
 from ..appdata import AppData
 from ..custom_gui import CustomPopup
@@ -61,18 +62,25 @@ class CartManager:
   def get_attached(self) -> list[Cartridge]:
     carts = []
     skip = []
-    for root, dirs, files in os.walk("/run/media"):
-      dirs[:] = [d for d in dirs if not any(os.path.join(root, d).startswith(s) for s in skip) and os.path.join(root, d).count('/') <= 4]
-      if "cartridge.ini" in files and not "Trash" in root:
-        cart_path = root
-        conf_path = os.path.join(cart_path, "cartridge.ini")
-        config = configparser.ConfigParser()
-        config.read(conf_path)
-        cart_name = config["cartridge"]["name"].replace("\"", "")
-        cart_target = config["cartridge"]["target"].replace("\"", "")
-        cart_args = config["cartridge"]["args"].replace("\"", "")
-        cart_type = config["cartridge"]["type"].replace("\"", "")
-        print(f'cart found already attached at {cart_path}')
-        carts.append(Cartridge(cart_path, cart_name, cart_target, cart_args, cart_type))
-        skip.append(root)
+    mountpoints = {"/media": 3, "/run/media": 4}
+    if Path("/media").resolve() == Path("/run/media").resolve():
+      if Path("/media").is_symlink():
+        mountpoints.pop("/media")
+      elif Path("/run/media").is_symlink():
+        mountpoints.pop("/run/media")
+    for path, depth in mountpoints.items():
+      for root, dirs, files in os.walk(path):
+        dirs[:] = [d for d in dirs if not any(os.path.join(root, d).startswith(s) for s in skip) and os.path.join(root, d).count('/') <= depth]
+        if "cartridge.ini" in files and not "Trash" in root:
+          cart_path = root
+          conf_path = os.path.join(cart_path, "cartridge.ini")
+          config = configparser.ConfigParser()
+          config.read(conf_path)
+          cart_name = config["cartridge"]["name"].replace("\"", "")
+          cart_target = config["cartridge"]["target"].replace("\"", "")
+          cart_args = config["cartridge"]["args"].replace("\"", "")
+          cart_type = config["cartridge"]["type"].replace("\"", "")
+          print(f'cart found already attached at {cart_path}')
+          carts.append(Cartridge(cart_path, cart_name, cart_target, cart_args, cart_type))
+          skip.append(root)
     return carts

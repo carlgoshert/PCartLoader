@@ -1,19 +1,19 @@
 import subprocess
 from queue import Queue
-from .cart_finder import CartManager
+from .cart_manager import CartManager
 from .classes import Cartridge, LoadedCart
-from .mounter import UdevMonitor
+from .udev_monitor import UdevMonitor
 from ..appdata import AppData
 
-class Loader:
-  _mounter = None
+class CartLoader:
+  _monitor = None
   _manager = None
   _loaded_carts: list[LoadedCart] = []
   _queue: Queue = None
   _app_data = None
 
   def __init__(self, q, app_data):
-    self._mounter = UdevMonitor(self._on_mount, self._on_unmount)
+    self._monitor = UdevMonitor(self._on_mount, self._on_unmount)
     self._manager = CartManager()
     self._queue = q
     self._app_data = app_data
@@ -38,7 +38,7 @@ class Loader:
       self._queue.put({"cart": unloaded, "action": "remove"})
 
   def start(self):
-    self._mounter.start()
+    self._monitor.start()
   
   def run_cart(self, cart: Cartridge):
     self._manager.run_cart(cart, self._app_data)

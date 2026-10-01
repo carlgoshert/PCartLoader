@@ -7,7 +7,7 @@ from PySide6.QtUiTools import QUiLoader
 from .appdata import AppData
 from .ui_settings_window import SettingsWindow
 from .ui_config_window import ConfigWindow
-from .pcart.loader import Loader
+from .pcart.cart_loader import CartLoader
 from .pcart.classes import Cartridge, LoadedCart, QueueWorker
 from .pcart.cart_finder import CartManager
 
@@ -38,7 +38,7 @@ class TopMenu(QMenu):
 class SystemTrayIcon(QSystemTrayIcon):
   base_dir = os.path.dirname(os.path.abspath(__file__))
   menu: QMenu = None
-  loader: Loader = None
+  loader: CartLoader = None
   loader_thread: threading.Thread = None
   queue_thread: QThread = None
   queue: Queue = None
@@ -55,7 +55,7 @@ class SystemTrayIcon(QSystemTrayIcon):
     self.menu = TopMenu(app, self.app_data)
     self.setContextMenu(self.menu)
     self.queue = Queue()
-    self.loader = Loader(self.queue, self.app_data)
+    self.loader = CartLoader(self.queue, self.app_data)
     self.worker = QueueWorker(self.queue)
     self.worker.item_received.connect(self._on_item_received)
     self.queue_thread = QThread()
