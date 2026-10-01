@@ -26,11 +26,11 @@ class TopMenu(QMenu):
   s_window: SettingsWindow = None
   a_window: AboutWindow = None
 
-  def __init__(self, app: QApplication, app_data: AppData):
+  def __init__(self, app: QApplication, app_data: AppData, save_cb):
     super().__init__()
     self.toggle_action = QAction('Disable Autostart')
     self.config_action = QAction('Create Config')
-    self.c_window = ConfigWindow()
+    self.c_window = ConfigWindow(save_cb)
     self.config_action.triggered.connect(lambda: self.c_window.window.show())
     self.settings_action = QAction('Settings')
     self.s_window = SettingsWindow(app_data)
@@ -65,7 +65,7 @@ class SystemTrayIcon(QSystemTrayIcon):
     self.setIcon(QIcon(os.path.join(self.base_dir, 'icon.png')))
     self.setVisible(True)
     self.setToolTip('PCart Loader')
-    self.menu = TopMenu(app, self.app_data)
+    self.menu = TopMenu(app, self.app_data, self._on_config_saved)
     self.setContextMenu(self.menu)
     self.menu.toggle_action.triggered.connect(self._toggle_autostart)
     self.queue = Queue()
@@ -89,6 +89,10 @@ class SystemTrayIcon(QSystemTrayIcon):
     self.queue_thread.quit()
     self.queue_thread.wait()
   
+  def _on_config_saved(self):
+    self.menu.carts_menu.clear()
+    self._get_attached_carts()
+
   def _on_item_received(self, item: dict):
     match item["action"]:
       case "add":
@@ -119,6 +123,7 @@ class SystemTrayIcon(QSystemTrayIcon):
     self.menu.s_window.text_music.setText(data[self.app_data.SECTION_APP_LINKS][self.app_data.LINK_MUSIC])
   
   def _get_attached_carts(self):
+    self.loader.clear_attached()
     for lcart in self.loader.get_attached():
       cart_action = self.menu.carts_menu.addAction(lcart.cart.name)
       cart_action.triggered.connect(lcart.run)

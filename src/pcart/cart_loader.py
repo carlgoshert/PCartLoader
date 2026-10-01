@@ -56,3 +56,6 @@ class CartLoader:
       return self._loaded_carts
     except Exception:
       return None
+  
+  def clear_attached(self):
+    self._loaded_carts.clear()

@@ -15,8 +15,9 @@ class ConfigWindow:
   combo_type: QComboBox = None
   custom_box: CustomBoxWidget = None
   label_dir: QLabel = None
+  save_callback = None
 
-  def __init__(self):
+  def __init__(self, save_cb):
     loader = QUiLoader()
     ui_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ConfigWindow.ui")
     self.window = loader.load(ui_path, None)
@@ -40,6 +41,7 @@ class ConfigWindow:
     self.window.findChild(QVBoxLayout, "vertLineEdits").addWidget(self.custom_box)
     self.label_dir = self.window.findChild(QLabel, "labelDir")
     self.custom_box.hide()
+    self.save_callback = save_cb
   
   def _on_text_changed(self, text):
     self._update_preview()
@@ -154,6 +156,7 @@ class ConfigWindow:
       CustomPopup("Config File Creator", "Config file has been saved: cartridge.ini").exec()
     except Exception:
       CustomPopup("Error", f"Could not write to config file {out_path}")
+    self.save_callback()
   
   def _open_file_dialog(self):
     dialog = QFileDialog(self.window)
