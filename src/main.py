@@ -17,6 +17,7 @@ from .pcart.cart_finder import CartManager
 
 class TopMenu(QMenu):
   carts_menu: QMenu = None
+  toggle_action: QAction = None
   config_action: QAction = None
   settings_action: QAction = None
   quit_action: QAction = None
@@ -25,6 +26,7 @@ class TopMenu(QMenu):
 
   def __init__(self, app: QApplication, app_data: AppData):
     super().__init__()
+    self.toggle_action = QAction('Disable Autostart')
     self.config_action = QAction('Create Config')
     self.c_window = ConfigWindow()
     self.config_action.triggered.connect(lambda: self.c_window.window.show())
@@ -34,6 +36,7 @@ class TopMenu(QMenu):
     self.quit_action = QAction('Quit')
     self.quit_action.triggered.connect(app.quit)
 
+    self.addAction(self.toggle_action)
     self.carts_menu = self.addMenu('PCarts')
     self.addAction(self.config_action)
     self.addAction(self.settings_action)
@@ -41,7 +44,7 @@ class TopMenu(QMenu):
 
 class SystemTrayIcon(QSystemTrayIcon):
   base_dir = os.path.dirname(os.path.abspath(__file__))
-  menu: QMenu = None
+  menu: TopMenu = None
   loader: CartLoader = None
   loader_thread: threading.Thread = None
   queue_thread: QThread = None
@@ -58,6 +61,7 @@ class SystemTrayIcon(QSystemTrayIcon):
     self.setToolTip('PCart Loader')
     self.menu = TopMenu(app, self.app_data)
     self.setContextMenu(self.menu)
+    self.menu.toggle_action.triggered.connect(self._toggle_autostart)
     self.queue = Queue()
     self.loader = CartLoader(self.queue, self.app_data)
     self.worker = QueueWorker(self.queue)
@@ -65,6 +69,15 @@ class SystemTrayIcon(QSystemTrayIcon):
     self.queue_thread = QThread()
     atexit.register(self._on_exit)
   
+  def _toggle_autostart(self):
+    action: QAction = self.sender()
+    if "Disable" in action.text():
+      self.loader.autostart_enabled = False
+      action.setText("Enable Autostart")
+    else:
+      self.loader.autostart_enabled = True
+      action.setText("Disable Autostart")
+
   def _on_exit(self):
     self.worker.stop()
     self.queue_thread.quit()

@@ -6,6 +6,7 @@ from .udev_monitor import UdevMonitor
 from ..appdata import AppData
 
 class CartLoader:
+  autostart_enabled = True
   _monitor = None
   _manager = None
   _loaded_carts: list[LoadedCart] = []
@@ -25,7 +26,8 @@ class CartLoader:
       lcart = LoadedCart(cart, self, node_path)
       self._loaded_carts.append(lcart)
       self._queue.put({"cart": lcart, "action": "add"})
-      self._manager.run_cart(cart, self._app_data)
+      if self.autostart_enabled:
+        self._manager.run_cart(cart, self._app_data)
   
   def _on_unmount(self, node_path):
     unloaded: LoadedCart = None
