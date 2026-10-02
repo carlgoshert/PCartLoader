@@ -90,12 +90,12 @@ class ConfigWindow:
   
   def _update_controls(self, config):
     self.label_dir.setText(self.cart_dir)
-    self.line_name.setText(config["cartridge"]["name"].replace("\"", ""))
-    self.line_target.setText(config["cartridge"]["target"].replace("\"", ""))
-    self.line_args.setText(config["cartridge"]["args"].replace("\"", ""))
+    self.line_name.setText(config["cartridge"]["name"])
+    self.line_target.setText(config["cartridge"]["target"])
+    self.line_args.setText(config["cartridge"]["args"])
     if "cartridge" in config:
       if "type" in config["cartridge"]:
-        match config["cartridge"]["type"].replace("\"", ""):
+        match config["cartridge"]["type"]:
           case "exe":
             self.combo_type.setCurrentIndex(0)
           case "video":
@@ -105,7 +105,7 @@ class ConfigWindow:
           case _:
             self.combo_type.setCurrentIndex(3)
             self.custom_box.show()
-            self.custom_box.line_type.setText(config["cartridge"]["type"].replace("\"", ""))
+            self.custom_box.line_type.setText(config["cartridge"]["type"])
   
   def _clear_controls(self):
     self.line_name.setText('')

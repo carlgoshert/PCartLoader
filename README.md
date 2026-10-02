@@ -54,6 +54,15 @@ Configuration settings for PCartLoader can be found in ~/.local/share/PCartLoade
 
 PCartLoader will use the app_links to launch any target whose type is not "exe". All "exe" targets are treated as standalone executables. This is ideal for portable applications or scripts.
 
+### Argument Keywords
+
+You can use the placeholder keywords in the `args =` line of your config files:
+- `$CARTDIR` resolves to the absolute filepath of the cartridge directory. All filepaths in `args` must be absolute paths.
+  - ex: `args = -f "$CARTDIR/path_to/file.rom"`
+
+### Examples
+1
+---
 For instance, you could have the following cartridge.ini, which tells PCartLoader to launch `openMSX.AppImage` as a standalone application:
 ```
 [cartridge]
@@ -63,7 +72,28 @@ args =
 type = exe 
 ```
 
-But if you had a cartridge containing a folder of mp4 videos:
+2
+---
+But if you wanted to use a shell script to launch a specific rom in the emulator:
+```
+[cartridge]
+name = OpenMSX
+target = msx.sh
+args = -cart "$CARTDIR/OpenMSX/roms/msx2/1942 (Japan).zip"
+type = exe
+```
+
+`msx.sh` would look something like this:
+```
+#!/bin/bash
+cd $(dirname "$0")
+./OpenMSX/openMSX-21.0-anylinux-x86_64.appimage "$@"
+```
+
+3
+---
+
+What if you had a cartridge containing a folder of mp4 videos?:
 ```
 [cartridge]
 name = movies
