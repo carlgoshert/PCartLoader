@@ -1,4 +1,5 @@
 from PySide6.QtWidgets import *
+from PySide6.QtCore import *
 
 class CustomPopup(QDialog):
   def __init__(self, title, msg):
@@ -42,3 +43,13 @@ class CustomBoxWidget(QWidget):
     h_layout.addWidget(self.line_type)
     h_layout.addSpacerItem(QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum))
     self.setLayout(h_layout)
+
+class CustomDialog(QFileDialog):
+
+  def __init__(self, parent):
+    super().__init__(parent=parent)
+    self.setViewMode(QFileDialog.ViewMode.List)
+    urls = self.sidebarUrls()
+    urls.append(QUrl.fromLocalFile("/media"))
+    urls.append(QUrl.fromLocalFile("/run/media"))
+    self.setSidebarUrls(urls)

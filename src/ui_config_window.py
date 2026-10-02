@@ -1,7 +1,7 @@
 import os, configparser
 from PySide6.QtWidgets import *
 from PySide6.QtUiTools import QUiLoader
-from .custom_gui import CustomPopup, CustomBoxWidget
+from .custom_gui import CustomPopup, CustomBoxWidget, CustomDialog
 
 class ConfigWindow:
   cart_dir: str = ""
@@ -65,9 +65,8 @@ class ConfigWindow:
     self.combo_type.setEnabled(True)
   
   def _open_folder_dialog(self):
-    dialog = QFileDialog(self.window)
+    dialog = CustomDialog(self.window)
     dialog.setFileMode(QFileDialog.FileMode.Directory)
-    dialog.setViewMode(QFileDialog.ViewMode.List)
     if dialog.exec():
       return dialog.selectedFiles()[0]
 
@@ -84,9 +83,7 @@ class ConfigWindow:
     dialog.setFileMode(QFileDialog.FileMode.ExistingFile)
     dialog.setViewMode(QFileDialog.ViewMode.List)
     if dialog.exec():
-      file = dialog.selectedFiles()[0]
-      folder = os.path.dirname(file)
-      return file, folder
+      return dialog.selectedFiles()[0]
   
   def _update_controls(self, config):
     self.label_dir.setText(self.cart_dir)
@@ -130,12 +127,11 @@ class ConfigWindow:
     self.text_preview.setText(preview)
 
   def _on_load_button_clicked(self):
-    file, folder = self._open_load_dialog()
+    file = self._open_file_dialog()
     if file:
       config = configparser.ConfigParser()
       config.read(file)
-      self.cart_dir = folder
-      print(folder)
+      self.cart_dir = os.path.dirname(file)
       self._clear_controls()
       self._unlock_controls()
       self._update_controls(config)
@@ -163,9 +159,8 @@ class ConfigWindow:
     self.save_callback()
   
   def _open_file_dialog(self):
-    dialog = QFileDialog(self.window)
+    dialog = CustomDialog(self.window)
     dialog.setFileMode(QFileDialog.FileMode.ExistingFile)
-    dialog.setViewMode(QFileDialog.ViewMode.List)
     dialog.setDirectory(self.cart_dir)
     if dialog.exec():
       return dialog.selectedFiles()[0]
@@ -173,11 +168,15 @@ class ConfigWindow:
   def _on_file_button_clicked(self):
     target = self._open_file_dialog()
     if target:
-      target = target.replace(self.cart_dir, '').replace('/', '')
+      target = target.replace(self.cart_dir, '')
+      if target[0] == '/':
+        target = target[1:]
       self.line_target.setText(target)
   
   def _on_folder_button_clicked(self):
     target = self._open_folder_dialog()
     if target:
-      target = target.replace(self.cart_dir, '').replace('/', '')
+      target = target.replace(self.cart_dir, '')
+      if target[0] == '/':
+        target = target[1:]
       self.line_target.setText(target)
