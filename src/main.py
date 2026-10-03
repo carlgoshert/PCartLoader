@@ -88,6 +88,8 @@ class SystemTrayIcon(QSystemTrayIcon):
   
   def _get_autostart_setting(self):
     data = self.app_data.data
+    if AppData.SECTION_GENERAL not in data:
+      return
     if data[AppData.SECTION_GENERAL][AppData.GENERAL_AUTOSTART] == "false":
       self.loader.autostart_enabled = False
       self.menu.toggle_action.setText("Enable Autostart")

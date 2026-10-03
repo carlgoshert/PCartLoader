@@ -23,7 +23,16 @@ class AppData:
       print("appdata settings loaded")
       return data
     except FileNotFoundError:
-      CustomPopup("Error", f"The settings file could not be found at {self.settings_path}").exec()
+      CustomPopup("Error", f"The settings file could not be found at {self.settings_path}. A new one will be created.").exec()
+      self.init_folders()
+      self._make_default_json()
+      try:
+        with open(self.settings_path, "r") as f:
+          data = json.load(f)
+        print("appdata settings loaded")
+        return data
+      except Exception:
+        return {}
     except Exception:
       CustomPopup("Error", f"The settings file at {self.settings_path} could not be read.").exec()
     return {}
