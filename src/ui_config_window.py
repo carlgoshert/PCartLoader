@@ -61,6 +61,7 @@ class ConfigWindow:
     self.button_file.setEnabled(True)
     self.button_folder.setEnabled(True)
     self.line_name.setEnabled(True)
+    self.line_target.setEnabled(True)
     self.line_args.setEnabled(True)
     self.combo_type.setEnabled(True)
   
