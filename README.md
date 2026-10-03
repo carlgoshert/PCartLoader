@@ -83,7 +83,7 @@ args = -cart "$CARTDIR/OpenMSX/roms/msx2/1942 (Japan).zip"
 type = exe
 ```
 
-`msx.sh` would look something like this:
+`msx.sh` would look something like this (maybe your script will be more complex):
 ```
 #!/bin/bash
 cd $(dirname "$0")
@@ -103,5 +103,60 @@ type = video
 ```
 You would then need to make sure the "video" app_link is set in your settings.json, either by manually editing the file, or by right-clicking the system tray icon and opening the settings menu. A video app_link for VLC might look like this:
 ```
-"video": "flatpak run --branch=stable --arch=x86_64 --command=/app/bin/vlc --file-forwarding org.videolan.VLC --started-from-file"
+{
+  "app_links": {
+    "video": "flatpak run org.videolan.VLC",
+    "music": "",
+    "custom": {
+    }
+  }
+}
+```
+
+
+4
+---
+
+You can also set up custom cartridge types to load cartridges with locally-installed software:
+```
+{
+  "app_links": {
+    "video": "",
+    "music": "",
+    "custom": {
+      "nes": "flatpak run ca._0ldsk00l.Nestopia"
+    }
+  }
+}
+```
+
+And use that emulator to launch a game from the cartridge like this:
+```
+[cartridge]
+name = The Legend of Zelda
+target = Legend of Zelda, The.nes
+args =                   
+type = nes
+```
+
+Another example, you could use a frontend like Emulation Station to load rom folders:
+```
+{
+  "app_links": {
+    "video": "",
+    "music": "",
+    "custom": {
+      "nes": "flatpak run ca._0ldsk00l.Nestopia",
+      "es-de": "/home/user/.local/bin/ES-DE_x64.AppImage"
+    }
+  }
+}
+```
+
+For this example, we want to tell ES-DE where the "home" folder is (the cartridge). It will then look for a `roms` folder inside there. Only custom app_links allow you to leave the target field blank:
+```[cartridge]
+name = Playstation
+target =
+args = --home "$CARTDIR"
+type = es-de
 ```
