@@ -9,7 +9,7 @@ class CartManager:
 
   def run_cart(self, cartridge: Cartridge, app_data):
     settings_dict = app_data.load_settings()
-    target_path = os.path.join(cartridge.path, cartridge.target)
+    target_path = os.path.join(cartridge.path, cartridge.target) if cartridge.target != "" else ""
     print(target_path)
     print(cartridge.target_type)
     try:
@@ -17,13 +17,22 @@ class CartManager:
       args = shlex.split(cartridge.args.replace(self.KEYWORD_CART_DIR, cartridge.path))
       match cartridge.target_type:
         case "exe":
-          cmd = [target_path] + args
+          if target_path != "":
+            cmd = [target_path] + args
+          else:
+            raise Exception("target_path was empty.")
         case "video":
-          video_link = shlex.split(settings_dict["app_links"]["video"])
-          cmd = video_link + args + [target_path]
+          if target_path != "":
+            video_link = shlex.split(settings_dict["app_links"]["video"])
+            cmd = video_link + args + [target_path]
+          else:
+            raise Exception("target_path was empty.")
         case "music":
-          music_link = shlex.split(settings_dict["app_links"]["music"])
-          cmd = music_link + args + [target_path]
+          if target_path != "":
+            music_link = shlex.split(settings_dict["app_links"]["music"])
+            cmd = music_link + args + [target_path]
+          else:
+            raise Exception("target_path was empty.")
         case _:
           print("custom link selected")
           matches_custom = False
@@ -31,7 +40,10 @@ class CartManager:
           for ty, ln in custom_types.items():
             if cartridge.target_type == ty:
               matches_custom = True
-              cmd = shlex.split(ln) + args + [target_path]
+              if target_path != "":
+                cmd = shlex.split(ln) + args + [target_path]
+              else:
+                cmd = shlex.split(ln) + args
               break
           if not matches_custom:
             print("cartridge target_type not recognized")
