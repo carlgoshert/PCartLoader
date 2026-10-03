@@ -73,16 +73,24 @@ class SystemTrayIcon(QSystemTrayIcon):
     self.worker = QueueWorker(self.queue)
     self.worker.item_received.connect(self._on_item_received)
     self.queue_thread = QThread()
+    self._get_autostart_setting()
     atexit.register(self._on_exit)
   
   def _toggle_autostart(self):
-    action: QAction = self.sender()
-    if "Disable" in action.text():
+    if "Disable" in self.menu.toggle_action.text():
       self.loader.autostart_enabled = False
-      action.setText("Enable Autostart")
+      self.menu.toggle_action.setText("Enable Autostart")
+      self.app_data.save_setting(AppData.SECTION_GENERAL, AppData.GENERAL_AUTOSTART, "false", suppress=True)
     else:
       self.loader.autostart_enabled = True
-      action.setText("Disable Autostart")
+      self.menu.toggle_action.setText("Disable Autostart")
+      self.app_data.save_setting(AppData.SECTION_GENERAL, AppData.GENERAL_AUTOSTART, "true", suppress=True)
+  
+  def _get_autostart_setting(self):
+    data = self.app_data.data
+    if data[AppData.SECTION_GENERAL][AppData.GENERAL_AUTOSTART] == "false":
+      self.loader.autostart_enabled = False
+      self.menu.toggle_action.setText("Enable Autostart")
 
   def _on_exit(self):
     self.worker.stop()

@@ -8,7 +8,7 @@ class CartManager:
   KEYWORD_CART_DIR = '$CARTDIR'
 
   def run_cart(self, cartridge: Cartridge, app_data):
-    settings_dict = app_data.load_settings()
+    settings_dict = app_data.data
     target_path = os.path.join(cartridge.path, cartridge.target) if cartridge.target != "" else ""
     print(target_path)
     print(cartridge.target_type)
