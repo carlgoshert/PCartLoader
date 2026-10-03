@@ -61,7 +61,7 @@ You can use the placeholder keywords in the `args =` line of your config files:
   - ex: `args = -f "$CARTDIR/path_to/file.rom"`
 
 ### Examples
-1
+1. Exe type
 ---
 For instance, you could have the following cartridge.ini, which tells PCartLoader to launch `openMSX.AppImage` as a standalone application:
 ```
@@ -72,7 +72,7 @@ args =
 type = exe 
 ```
 
-2
+2. Scripts
 ---
 But if you wanted to use a shell script to launch a specific rom in the emulator:
 ```
@@ -90,14 +90,14 @@ cd $(dirname "$0")
 ./OpenMSX/openMSX-21.0-anylinux-x86_64.appimage "$@"
 ```
 
-3
+3. Videos folder
 ---
 
 What if you had a cartridge containing a folder of mp4 videos?:
 ```
 [cartridge]
 name = movies
-target = movies
+target = moviesfolder
 args =                   
 type = video
 ```
@@ -114,7 +114,7 @@ You would then need to make sure the "video" app_link is set in your settings.js
 ```
 
 
-4
+4. Custom types
 ---
 
 You can also set up custom cartridge types to load cartridges with locally-installed software:
