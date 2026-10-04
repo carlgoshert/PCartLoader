@@ -4,6 +4,7 @@ from .cart_manager import CartManager
 from .classes import Cartridge, LoadedCart
 from .udev_monitor import UdevMonitor
 from ..appdata import AppData
+from ..custom_gui import CustomPopup
 
 class CartLoader:
   autostart_enabled = True
@@ -54,8 +55,9 @@ class CartLoader:
         node_path = proc.stdout
         self._loaded_carts.append(LoadedCart(cart, self, node_path))
       return self._loaded_carts
-    except Exception:
-      return None
+    except Exception as ex:
+      CustomPopup("Error", f"Could not retrieve attached cartridges\n{ex}").exec()
+      return []
   
   def clear_attached(self):
     self._loaded_carts.clear()

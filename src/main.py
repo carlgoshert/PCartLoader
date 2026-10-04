@@ -56,12 +56,11 @@ class SystemTrayIcon(QSystemTrayIcon):
   queue_thread: QThread = None
   queue: Queue = None
   worker: QueueWorker = None
-  app_data = AppData()
+  app_data: AppData = None
 
   def __init__(self, app: QApplication):
     super().__init__()
-    self.app_data.init_folders()
-    self.app_data.init_settings()
+    self.app_data = AppData()
     self.setIcon(QIcon(os.path.join(self.base_dir, 'icon.png')))
     self.setVisible(True)
     self.setToolTip('PCart Loader')
