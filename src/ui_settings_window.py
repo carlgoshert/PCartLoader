@@ -50,7 +50,6 @@ class SettingsWindow:
   
   def _on_delete_button_clicked(self, _checked, caller):
     for link_widget in self.custom_links:
-      print(link_widget)
       if link_widget.button_delete == caller:
         self.custom_links.remove(link_widget)
         link_widget.hide()

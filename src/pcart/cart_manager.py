@@ -1,4 +1,4 @@
-import os, configparser, subprocess, json, shlex
+import os, configparser, subprocess, json, shlex, logging
 from pathlib import Path
 from .classes import Cartridge
 from ..appdata import AppData
@@ -10,8 +10,8 @@ class CartManager:
   def run_cart(self, cartridge: Cartridge, app_data):
     settings_dict = app_data.data
     target_path = os.path.join(cartridge.path, cartridge.target) if cartridge.target != "" else ""
-    print(target_path)
-    print(cartridge.target_type)
+    logging.debug(f"Cartridge target filepath: {target_path}")
+    logging.debug(f"Cartridge target type: {cartridge.target_type}")
     try:
       cmd = []
       args = shlex.split(cartridge.args.replace(self.KEYWORD_CART_DIR, cartridge.path))
@@ -34,7 +34,6 @@ class CartManager:
           else:
             raise Exception("target_path was empty.")
         case _:
-          print("custom link selected")
           matches_custom = False
           custom_types = settings_dict["app_links"]["custom"]
           for ty, ln in custom_types.items():
@@ -46,21 +45,20 @@ class CartManager:
                 cmd = shlex.split(ln) + args
               break
           if not matches_custom:
-            print("cartridge target_type not recognized")
+            logging.info("Cartridge target_type not recognized.")
             return
-      print("process started")
-      print(cmd)
+      logging.info("Launching cartridge.")
+      logging.debug(f"Subprocess cmd: {cmd}")
       subprocess.run(cmd, check=True)
     except Exception as ex:
-      CustomPopup("Error", f"Cartridge could not be loaded. {ex}")
+      CustomPopup("Error", f"Cartridge could not be loaded.\n{ex}")
+      logging.error(f"Cartridge could not be louded. {ex}")
 
   def check_dir(self, mount_dir: str):
-    print("searching...")
+    logging.info(f"Searching {mount_dir} for cartridge.ini.")
     for file in os.listdir(mount_dir):
       if file == "cartridge.ini":
-        print("found it!")
-        print(mount_dir)
-        print(file)
+        logging.info("Found cartridge.ini")
         cart_path = mount_dir
         conf_path = os.path.join(cart_path, "cartridge.ini")
         config = configparser.ConfigParser()
@@ -69,7 +67,6 @@ class CartManager:
         cart_target = config["cartridge"]["target"]
         cart_args = config["cartridge"]["args"]
         cart_type = config["cartridge"]["type"]
-        print(cart_path + cart_target)
         return Cartridge(cart_path, cart_name, cart_target, cart_args, cart_type)
 
   def get_attached(self) -> list[Cartridge]:
@@ -93,7 +90,7 @@ class CartManager:
           cart_target = config["cartridge"]["target"]
           cart_args = config["cartridge"]["args"]
           cart_type = config["cartridge"]["type"]
-          print(f'cart found already attached at {cart_path}')
+          logging.info(f'Cartridge found already attached at {cart_path}.')
           carts.append(Cartridge(cart_path, cart_name, cart_target, cart_args, cart_type))
           skip.append(root)
     return carts

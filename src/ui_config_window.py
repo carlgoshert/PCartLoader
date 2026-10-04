@@ -1,4 +1,4 @@
-import os, configparser
+import os, configparser, logging
 from PySide6.QtWidgets import *
 from PySide6.QtUiTools import QUiLoader
 from .custom_gui import CustomPopup, CustomBoxWidget, CustomDialog
@@ -74,10 +74,12 @@ class ConfigWindow:
   def _on_drive_button_clicked(self):
     folder = self._open_folder_dialog()
     if folder:
+      logging.info(f"Starting new config file at {folder}")
       self.cart_dir = folder
-      print(folder)
       self._unlock_controls()
       self._clear_controls()
+    else:
+      logging.warning(f"Folder selection canceled or folder {folder} could not be opened.")
     
   def _open_load_dialog(self):
     dialog = QFileDialog(self.window)
@@ -131,12 +133,17 @@ class ConfigWindow:
     file = self._open_file_dialog()
     if file:
       config = configparser.ConfigParser()
-      config.read(file)
-      self.cart_dir = os.path.dirname(file)
-      self._clear_controls()
-      self._unlock_controls()
-      self._update_controls(config)
-      self._update_preview()
+      if config.read(file):
+        logging.info("Config file loaded succesfully.")
+        self.cart_dir = os.path.dirname(file)
+        self._clear_controls()
+        self._unlock_controls()
+        self._update_controls(config)
+        self._update_preview()
+      else:
+        logging.error(f"Selected file {file} could not be read.")
+    else:
+      logging.warning(f"File selection canceled or file {file} could not be opened.")
   
   def _on_save_button_clicked(self):
     cart_name = self.line_name.text()
@@ -155,8 +162,10 @@ class ConfigWindow:
       with open(out_path, mode) as f:
         config.write(f)
       CustomPopup("Config File Creator", "Config file has been saved: cartridge.ini").exec()
-    except Exception:
-      CustomPopup("Error", f"Could not write to config file {out_path}")
+      logging.info(f"Config file saved to {out_path}")
+    except Exception as ex:
+      CustomPopup("Error", f"Could not write to config file {out_path}.\n{ex}")
+      logging.error(f"Could not write to config file at {out_path}")
     self.save_callback()
   
   def _open_file_dialog(self):

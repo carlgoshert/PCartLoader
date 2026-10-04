@@ -1,10 +1,9 @@
-import subprocess
+import subprocess, logging
 from queue import Queue
 from .cart_manager import CartManager
 from .classes import Cartridge, LoadedCart
 from .udev_monitor import UdevMonitor
 from ..appdata import AppData
-from ..custom_gui import CustomPopup
 
 class CartLoader:
   autostart_enabled = True
@@ -21,6 +20,7 @@ class CartLoader:
     self._app_data = app_data
 
   def _on_mount(self, mount_point, node_path):
+    logging.info("Cartridge has been mounted.")
     cart = self._manager.check_dir(mount_point)
     if cart:
       cart.node_path = node_path
@@ -28,9 +28,10 @@ class CartLoader:
       self._loaded_carts.append(lcart)
       self._queue.put({"cart": lcart, "action": "add"})
       if self.autostart_enabled:
-        self._manager.run_cart(cart, self._app_data)
+        self.run_cart(cart)
   
   def _on_unmount(self, node_path):
+    logging.info("Cartridge has been unmounted.")
     unloaded: LoadedCart = None
     for lcart in self._loaded_carts:
       if node_path == lcart.node_path:
@@ -41,9 +42,11 @@ class CartLoader:
       self._queue.put({"cart": unloaded, "action": "remove"})
 
   def start(self):
+    logging.info("Starting cartridge monitor.")
     self._monitor.start()
   
   def run_cart(self, cart: Cartridge):
+    logging.info("Running cartridge.")
     self._manager.run_cart(cart, self._app_data)
 
   def get_attached(self) -> list[LoadedCart]:
@@ -56,7 +59,7 @@ class CartLoader:
         self._loaded_carts.append(LoadedCart(cart, self, node_path))
       return self._loaded_carts
     except Exception as ex:
-      CustomPopup("Error", f"Could not retrieve attached cartridges\n{ex}").exec()
+      logging.error(f"Could not retrieve attached cartridges. {ex}")
       return []
   
   def clear_attached(self):

@@ -1,4 +1,4 @@
-import threading
+import threading, logging
 from queue import Queue
 from PySide6.QtCore import QObject, Signal
 
@@ -46,8 +46,8 @@ class QueueWorker(QObject):
       if not self._queue.empty():
         try:
           item: dict = self._queue.get()
-          print("found item in queue")
+          logging.info("Item found in cartridge queue.")
           self.item_received.emit(item)
           self._queue.task_done()
-        except Exception:
-          print("Exception raised while accessing cartridge queue")
+        except Exception as ex:
+          logging.error(f"Exception raised while accessing cartridge queue.\n{ex}")

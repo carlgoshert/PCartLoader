@@ -1,4 +1,5 @@
-import sys, os, subprocess, threading, atexit
+import sys, os, subprocess, threading, atexit, logging
+from logging.handlers import RotatingFileHandler
 from queue import Queue
 from PySide6.QtCore import QThread, QObject, Signal
 from PySide6.QtGui import *
@@ -60,6 +61,9 @@ class SystemTrayIcon(QSystemTrayIcon):
 
   def __init__(self, app: QApplication):
     super().__init__()
+    log_path = os.path.join(AppData._share_path, "PCartLoader.log")
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s : %(levelname)s : %(message)s', handlers=[logging.StreamHandler(), RotatingFileHandler(log_path, maxBytes=128000, backupCount=10)])
+    logging.info("Creating system tray icon.")
     self.app_data = AppData()
     self.setIcon(QIcon(os.path.join(self.base_dir, 'icon.png')))
     self.setVisible(True)
@@ -77,15 +81,18 @@ class SystemTrayIcon(QSystemTrayIcon):
   
   def _toggle_autostart(self):
     if "Disable" in self.menu.toggle_action.text():
+      logging.info("Autostart selection toggled to false")
       self.loader.autostart_enabled = False
       self.menu.toggle_action.setText("Enable Autostart")
       self.app_data.save_setting(AppData.SECTION_GENERAL, AppData.GENERAL_AUTOSTART, "false", suppress=True)
     else:
+      logging.info("Autostart selection toggled to true")
       self.loader.autostart_enabled = True
       self.menu.toggle_action.setText("Disable Autostart")
       self.app_data.save_setting(AppData.SECTION_GENERAL, AppData.GENERAL_AUTOSTART, "true", suppress=True)
   
   def _get_autostart_setting(self):
+    logging.info("Initializing autostart selection from settings.json.")
     data = self.app_data.data
     if data[AppData.SECTION_GENERAL][AppData.GENERAL_AUTOSTART] == "false":
       self.loader.autostart_enabled = False
@@ -103,19 +110,19 @@ class SystemTrayIcon(QSystemTrayIcon):
   def _on_item_received(self, item: dict):
     match item["action"]:
       case "add":
-        print("adding cart")
         self._on_cart_added(item["cart"])
       case "remove":
-        print("removing cart")
         self._on_cart_removed(item["cart"])
+      case _:
+        logging.error("Item received from cartridge queue is not recognized.")
 
   def _on_cart_added(self, lcart):
-    print("add item received from queue")
+    logging.info("Adding cartridge to list.")
     cart_action = self.menu.carts_menu.addAction(lcart.cart.name)
     cart_action.triggered.connect(lcart.run)
   
   def _on_cart_removed(self, lcart):
-    print("remove item received from queue")
+    logging.info("Removing cartridge from list.")
     cart_action: QAction = None
     for action in self.menu.carts_menu.actions():
       if action.text() == lcart.cart.name:
@@ -125,17 +132,20 @@ class SystemTrayIcon(QSystemTrayIcon):
       self.menu.carts_menu.removeAction(cart_action)
   
   def _setup_settings_window(self):
+    logging.info("Initializing settings window from settings.json.")
     data = self.app_data.data
     self.menu.s_window.text_video.setText(data[self.app_data.SECTION_APP_LINKS][self.app_data.LINK_VIDEO])
     self.menu.s_window.text_music.setText(data[self.app_data.SECTION_APP_LINKS][self.app_data.LINK_MUSIC])
   
   def _get_attached_carts(self):
+    logging.info("Getting attached cartridges.")
     self.loader.clear_attached()
     for lcart in self.loader.get_attached():
       cart_action = self.menu.carts_menu.addAction(lcart.cart.name)
       cart_action.triggered.connect(lcart.run)
 
   def start(self):
+    logging.info("Starting PCartLoader.")
     self._setup_settings_window()
     self.loader_thread = threading.Thread(target=self.loader.start)
     self.loader_thread.start()
