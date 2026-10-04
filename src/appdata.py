@@ -13,11 +13,7 @@ class AppData:
   _share_path = os.path.join(_user_path, ".local/share/PCartLoader")
   _settings_path = os.path.join(_share_path, "settings.json")
 
-  def __init__(self):
-    self._init_folders()
-    self._init_settings()
-
-  def _init_folders(self):
+  def init_folders(self):
     if not os.path.exists(self._share_path):
       os.makedirs(self._share_path, exist_ok=True)
 
@@ -84,7 +80,7 @@ class AppData:
       CustomPopup("Error", f"Could not initialize settings file {self._settings_path}\n{ex}").exec()
       logging.error(f"Could not initialize settings.json file. {ex}")
 
-  def _init_settings(self):
+  def init_settings(self):
     if not os.path.exists(self._settings_path):
       self._make_default_json()
       self.data = self._load_settings()

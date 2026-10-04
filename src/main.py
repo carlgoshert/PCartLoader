@@ -61,10 +61,12 @@ class SystemTrayIcon(QSystemTrayIcon):
 
   def __init__(self, app: QApplication):
     super().__init__()
+    self.app_data = AppData()
+    self.app_data.init_folders()
     log_path = os.path.join(AppData._share_path, "PCartLoader.log")
     logging.basicConfig(level=logging.INFO, format='%(asctime)s : %(levelname)s : %(message)s', handlers=[logging.StreamHandler(), RotatingFileHandler(log_path, maxBytes=128000, backupCount=10)])
     logging.info("Creating system tray icon.")
-    self.app_data = AppData()
+    self.app_data.init_settings()
     self.setIcon(QIcon(os.path.join(self.base_dir, 'icon.png')))
     self.setVisible(True)
     self.setToolTip('PCart Loader')
