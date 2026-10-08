@@ -69,8 +69,8 @@ class CartManager:
         cart_type = config["cartridge"]["type"]
         return Cartridge(cart_path, cart_name, cart_target, cart_args, cart_type)
 
-  def get_attached(self) -> list[Cartridge]:
-    carts = []
+  def get_attached(self) -> dict[str, Cartridge]:
+    carts = {}
     skip = []
     partitions = psutil.disk_partitions()
     for part in partitions:
@@ -88,6 +88,6 @@ class CartManager:
           cart_args = config["cartridge"]["args"]
           cart_type = config["cartridge"]["type"]
           logging.info(f'Cartridge found already attached at {cart_path}.')
-          carts.append(Cartridge(cart_path, cart_name, cart_target, cart_args, cart_type))
+          carts[part[0]] = Cartridge(cart_path, cart_name, cart_target, cart_args, cart_type)
           skip.append(root)
     return carts

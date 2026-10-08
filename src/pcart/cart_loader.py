@@ -52,10 +52,7 @@ class CartLoader:
   def get_attached(self) -> list[LoadedCart]:
     try:
       carts = self._manager.get_attached()
-      for cart in carts:
-        cmd = f"mount | grep '{cart.path}' | awk '{{print $1}}'"
-        proc = subprocess.run([cmd], capture_output=True, text=True, shell=True)
-        node_path = proc.stdout
+      for node_path, cart in carts.items():
         self._loaded_carts.append(LoadedCart(cart, self, node_path))
       return self._loaded_carts
     except Exception as ex:
