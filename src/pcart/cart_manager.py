@@ -1,4 +1,4 @@
-import os, configparser, subprocess, json, shlex, logging
+import os, configparser, subprocess, json, shlex, logging, psutil
 from pathlib import Path
 from .classes import Cartridge
 from ..appdata import AppData
@@ -72,15 +72,12 @@ class CartManager:
   def get_attached(self) -> list[Cartridge]:
     carts = []
     skip = []
-    mountpoints = {"/media": 3, "/run/media": 4}
-    if Path("/media").resolve() == Path("/run/media").resolve():
-      if Path("/media").is_symlink():
-        mountpoints.pop("/media")
-      elif Path("/run/media").is_symlink():
-        mountpoints.pop("/run/media")
-    for path, depth in mountpoints.items():
+    partitions = psutil.disk_partitions()
+    for part in partitions:
+      path = part[1]
+      depth = path.count(os.sep) + 1
       for root, dirs, files in os.walk(path):
-        dirs[:] = [d for d in dirs if not any(os.path.join(root, d).startswith(s) for s in skip) and os.path.join(root, d).count('/') <= depth]
+        dirs[:] = [d for d in dirs if not any(os.path.join(root, d).startswith(s) for s in skip) and os.path.join(root, d).count(os.sep) <= depth]
         if "cartridge.ini" in files and not "Trash" in root:
           cart_path = root
           conf_path = os.path.join(cart_path, "cartridge.ini")
