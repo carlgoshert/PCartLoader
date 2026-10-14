@@ -52,7 +52,7 @@ class CartManager:
       subprocess.run(cmd, check=True)
     except Exception as ex:
       CustomPopup("Error", f"Cartridge could not be loaded.\n{ex}")
-      logging.error(f"Cartridge could not be louded. {ex}")
+      logging.error(f"Cartridge could not be loaded. {ex}")
 
   def check_dir(self, mount_dir: str):
     logging.info(f"Searching {mount_dir} for cartridge.ini.")

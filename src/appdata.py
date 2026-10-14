@@ -1,4 +1,4 @@
-import os, json, logging
+import os, json, logging, platform
 from .custom_gui import CustomPopup
 
 class AppData:
@@ -9,13 +9,21 @@ class AppData:
   SECTION_GENERAL = "general"
   GENERAL_AUTOSTART = "autostart"
   data = {}
-  _user_path = os.path.expanduser('~')
-  _share_path = os.path.join(_user_path, ".local/share/PCartLoader")
-  _settings_path = os.path.join(_share_path, "settings.json")
+  _appdata_path = ""
+  _settings_path = ""
+
+  def __init__(self):
+    match platform.system():
+      case "Linux":
+        self._appdata_path = os.path.join(os.path.expanduser('~'), ".local/share/PCartLoader")
+        self._settings_path = os.path.join(self._appdata_path, "settings.json")
+      case "Windows":
+        self._appdata_path = os.path.join(os.getenv('LOCALAPPDATA'), "Programs/PCartLoader")
+        self._settings_path = os.path.join(self._appdata_path, "settings.json")
 
   def init_folders(self):
-    if not os.path.exists(self._share_path):
-      os.makedirs(self._share_path, exist_ok=True)
+    if not os.path.exists(self._appdata_path):
+      os.makedirs(self._appdata_path, exist_ok=True)
 
   def _verify_json(self):
     logging.info("Verifying settings.json file.")

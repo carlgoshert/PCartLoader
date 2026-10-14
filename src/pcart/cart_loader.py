@@ -1,8 +1,7 @@
-import subprocess, logging
+import subprocess, logging, platform
 from queue import Queue
 from .cart_manager import CartManager
 from .classes import Cartridge, LoadedCart
-from .udev_monitor import UdevMonitor
 from ..appdata import AppData
 
 class CartLoader:
@@ -14,7 +13,13 @@ class CartLoader:
   _app_data = None
 
   def __init__(self, q, app_data):
-    self._monitor = UdevMonitor(self._on_mount, self._on_unmount)
+    match platform.system():
+      case "Linux":
+        from .udev_monitor import UdevMonitor
+        self._monitor = UdevMonitor(self._on_mount, self._on_unmount)
+      case "Windows":
+        from .win32_monitor import Win32Monitor
+        self._monitor = Win32Monitor(self._on_mount, self._on_unmount)
     self._manager = CartManager()
     self._queue = q
     self._app_data = app_data
