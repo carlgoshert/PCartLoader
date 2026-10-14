@@ -15,7 +15,6 @@ from .ui_config_window import ConfigWindow
 from .ui_about_window import AboutWindow
 from .pcart.cart_loader import CartLoader
 from .pcart.classes import Cartridge, LoadedCart, QueueWorker
-from .pcart.cart_finder import CartManager
 
 class TopMenu(QMenu):
   carts_menu: QMenu = None
