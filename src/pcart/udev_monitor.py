@@ -16,9 +16,9 @@ class UdevMonitor:
       start = time.time()
       waiting = True
       while (waiting):
-        cmd = f"udisksctl info -b {node_path} | grep MountPoints | awk '{{print $2}}'"
+        cmd = f"udisksctl info -b {node_path} | grep MountPoints"
         proc = subprocess.run([cmd], capture_output=True, text=True, shell=True)
-        mount_point = proc.stdout.replace('\n', '')
+        mount_point = proc.stdout.replace('\n', '').split(':')[1].strip()
         if mount_point != "":
           waiting = False
         if time.time() >= start + timeout:
