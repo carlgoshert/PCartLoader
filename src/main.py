@@ -1,4 +1,4 @@
-import sys, os, subprocess, threading, atexit, logging
+import sys, os, subprocess, threading, atexit, logging, platform
 from logging.handlers import RotatingFileHandler
 from queue import Queue
 from PySide6.QtCore import QThread, QObject, Signal
@@ -26,7 +26,7 @@ class TopMenu(QMenu):
   s_window: SettingsWindow = None
   a_window: AboutWindow = None
 
-  def __init__(self, app: QApplication, app_data: AppData, save_cb):
+  def __init__(self, app_data: AppData, save_cb, quit_cb):
     super().__init__()
     self.toggle_action = QAction('Disable Autostart')
     self.config_action = QAction('Create Config')
@@ -39,7 +39,7 @@ class TopMenu(QMenu):
     self.about_action = QAction("About")
     self.about_action.triggered.connect(lambda : self.a_window.window.show())
     self.quit_action = QAction('Quit')
-    self.quit_action.triggered.connect(app.quit)
+    self.quit_action.triggered.connect(quit_cb)
 
     self.addAction(self.toggle_action)
     self.carts_menu = self.addMenu('PCarts')
@@ -52,13 +52,13 @@ class SystemTrayIcon(QSystemTrayIcon):
   base_dir = os.path.dirname(os.path.abspath(__file__))
   menu: TopMenu = None
   loader: CartLoader = None
-  loader_thread: threading.Thread = None
+  loader_thread: QThread = None
   queue_thread: QThread = None
   queue: Queue = None
   worker: QueueWorker = None
   app_data: AppData = None
 
-  def __init__(self, app: QApplication):
+  def __init__(self):
     super().__init__()
     self.app_data = AppData()
     self.app_data.init_folders()
@@ -67,10 +67,15 @@ class SystemTrayIcon(QSystemTrayIcon):
     logging.info(f"Logging to {log_path}")
     logging.info("Creating system tray icon.")
     self.app_data.init_settings()
-    self.setIcon(QIcon(os.path.join(self.base_dir, 'icon.png')))
+    
+    app.setStyle("Fusion")
+    self.setIcon(QIcon(os.path.join(self.base_dir, 'icon.ico')))
+    if QGuiApplication.styleHints().colorScheme() == Qt.ColorScheme.Light:
+        self.setIcon(QIcon(os.path.join(self.base_dir, 'icon-black.ico')))
     self.setVisible(True)
     self.setToolTip('PCart Loader')
-    self.menu = TopMenu(app, self.app_data, self._on_config_saved)
+    
+    self.menu = TopMenu(self.app_data, self._on_config_saved, self._quit)
     self.setContextMenu(self.menu)
     self.menu.toggle_action.triggered.connect(self._toggle_autostart)
     self.queue = Queue()
@@ -78,6 +83,7 @@ class SystemTrayIcon(QSystemTrayIcon):
     self.worker = QueueWorker(self.queue)
     self.worker.item_received.connect(self._on_item_received)
     self.queue_thread = QThread()
+    self.loader_thread = QThread()
     self._get_autostart_setting()
     atexit.register(self._on_exit)
   
@@ -103,7 +109,14 @@ class SystemTrayIcon(QSystemTrayIcon):
   def _on_exit(self):
     self.worker.stop()
     self.queue_thread.quit()
-    self.queue_thread.wait()
+    self.loader_thread.quit()
+
+  def _quit(self):
+    logging.info("Exiting PCartLoader.")
+    self.menu.a_window.window.close()
+    self.menu.c_window.window.close()
+    self.menu.s_window.window.close()
+    sys.exit(app.quit())
   
   def _on_config_saved(self):
     self.menu.carts_menu.clear()
@@ -121,14 +134,14 @@ class SystemTrayIcon(QSystemTrayIcon):
   def _on_cart_added(self, lcart):
     logging.info("Adding cartridge to list.")
     cart_action = self.menu.carts_menu.addAction(lcart.cart.name)
-    cart_action.triggered.connect(lcart.run)
+    cart_action.triggered.connect(lambda : self.loader.run_cart(lcart.cart))
   
   def _on_cart_removed(self, lcart):
-    logging.info("Removing cartridge from list.")
     cart_action: QAction = None
     for action in self.menu.carts_menu.actions():
       if action.text() == lcart.cart.name:
         cart_action = action
+        logging.info("Removing cartridge from list.")
         break
     if cart_action:
       self.menu.carts_menu.removeAction(cart_action)
@@ -144,12 +157,12 @@ class SystemTrayIcon(QSystemTrayIcon):
     self.loader.clear_attached()
     for lcart in self.loader.get_attached():
       cart_action = self.menu.carts_menu.addAction(lcart.cart.name)
-      cart_action.triggered.connect(lcart.run)
+      cart_action.triggered.connect(lambda : self.loader.run_cart(lcart.cart))
 
   def start(self):
     logging.info("Starting PCartLoader.")
     self._setup_settings_window()
-    self.loader_thread = threading.Thread(target=self.loader.start)
+    self.loader_thread.started.connect(self.loader.start)
     self.loader_thread.start()
     self._get_attached_carts()
     self.worker.moveToThread(self.queue_thread)
@@ -157,6 +170,9 @@ class SystemTrayIcon(QSystemTrayIcon):
     self.queue_thread.start()
 
 def main():
-  tray = SystemTrayIcon(app)
+  tray = SystemTrayIcon()
   tray.start()
   sys.exit(app.exec())
+
+if __name__ == "__main__":
+  main()

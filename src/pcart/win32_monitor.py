@@ -35,7 +35,7 @@ class Win32Monitor:
   
   def _on_unmount(self, mount_point: str):
     logging.info(f"USB device disconnected from {mount_point}.")
-    self._unmount_callback(mount_point, mount_point)
+    self._unmount_callback(mount_point)
 
   def _drive_letter_from_mask(self, uintmask):
     for i in range(26):
@@ -53,14 +53,14 @@ class Win32Monitor:
           if (dbhdr.dbch_devicetype == win32con.DBT_DEVTYP_VOLUME):
             dbvolume = DEV_BROADCAST_VOLUME.from_address(lparam)
             letter = self._drive_letter_from_mask(dbvolume.dbcv_unitmask)
-            mount_point = drive_letter + ':'
+            mount_point = letter + ':'
             self._on_mount(mount_point)
         case win32con.DBT_DEVICEREMOVECOMPLETE:
           logging.info("Device removal broadcast event observed.")
           if (dbhdr.dbch_devicetype == win32con.DBT_DEVTYP_VOLUME):
             dbvolume = DEV_BROADCAST_VOLUME.from_address(lparam)
             letter = self._drive_letter_from_mask(dbvolume.dbcv_unitmask)
-            mount_point = drive_letter + ':'
+            mount_point = letter + ':'
             self._on_unmount(mount_point)
     return 0
 

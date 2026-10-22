@@ -15,7 +15,7 @@ PCartLoader = "src.main:main"
 packages = ["src", "src.pcart"]
 
 [tool.setuptools.package-data]
-src = ["*.ui", "*.png"]
+src = ["*.ui", "*.png", "*.ico"]
 
 [tool.pyproject-appimage]
 script = "PCartLoader"

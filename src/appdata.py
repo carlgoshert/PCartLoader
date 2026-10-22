@@ -18,7 +18,7 @@ class AppData:
         self._appdata_path = os.path.join(os.path.expanduser('~'), ".local/share/PCartLoader")
         self._settings_path = os.path.join(self._appdata_path, "settings.json")
       case "Windows":
-        self._appdata_path = os.path.join(os.getenv('LOCALAPPDATA'), "Programs/PCartLoader")
+        self._appdata_path = os.path.join(os.getenv('LOCALAPPDATA'), "Programs\PCartLoader")
         self._settings_path = os.path.join(self._appdata_path, "settings.json")
 
   def init_folders(self):

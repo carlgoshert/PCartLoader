@@ -18,16 +18,12 @@ class Cartridge:
 
 class LoadedCart:
   cart: Cartridge = None
-  loader: Loader = None
   node_path = ""
 
   def __init__(self, cart, loader, node_path):
     self.cart = cart
     self.loader = loader
     self.node_path = node_path
-  
-  def run(self):
-    self.loader.run_cart(self.cart)
 
 class QueueWorker(QObject):
   item_received = Signal(object)
@@ -51,3 +47,4 @@ class QueueWorker(QObject):
           self._queue.task_done()
         except Exception as ex:
           logging.error(f"Exception raised while accessing cartridge queue.\n{ex}")
+    logging.info("Stopping queue worker.")
