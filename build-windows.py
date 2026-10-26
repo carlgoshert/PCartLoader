@@ -4,6 +4,9 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--launch", action="store_true", help="Launch EXE after building.")
     args = parser.parse_args()
+
+    if os.path.exists("build"):
+      shutil.rmtree("build")
     
     version = make_version.main()
     

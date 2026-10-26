@@ -1,8 +1,8 @@
 import os
 from PySide6.QtWidgets import *
 from PySide6.QtUiTools import QUiLoader
-from .appdata import AppData
-from .custom_gui import CustomLinkWidget
+from ..appdata import AppData
+from ..custom_gui import CustomLinkWidget
 
 class SettingsWindow:
   window: QMainWindow = None

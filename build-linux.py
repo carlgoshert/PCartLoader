@@ -1,9 +1,12 @@
-import argparse, os, sys, subprocess, tomllib, make_version
+import argparse, os, sys, subprocess, tomllib, make_version, shutil
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--launch", action="store_true", help="Launch AppImage after building.")
     args = parser.parse_args()
+
+    if os.path.exists("build"):
+      shutil.rmtree("build")
     
     make_version.main()
 

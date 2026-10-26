@@ -10,9 +10,9 @@ app = QApplication([])
 app.setQuitOnLastWindowClosed(False)
 
 from .appdata import AppData
-from .ui_settings_window import SettingsWindow
-from .ui_config_window import ConfigWindow
-from .ui_about_window import AboutWindow
+from .ui.settings_window import SettingsWindow
+from .ui.config_window import ConfigWindow
+from .ui.about_window import AboutWindow
 from .pcart.cart_loader import CartLoader
 from .pcart.classes import Cartridge, LoadedCart, QueueWorker
 
@@ -29,7 +29,7 @@ class TopMenu(QMenu):
   def __init__(self, app_data: AppData, save_cb, quit_cb):
     super().__init__()
     self.toggle_action = QAction('Disable Autostart')
-    self.config_action = QAction('Create Config')
+    self.config_action = QAction('Config Editor')
     self.c_window = ConfigWindow(save_cb)
     self.config_action.triggered.connect(lambda: self.c_window.window.show())
     self.settings_action = QAction('Settings')
